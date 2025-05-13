@@ -23,6 +23,8 @@ pub static SSH_IPV4_ADDRESS: &[u8; 20] = b"255.255.255.255\0\0\0\0\0";
 pub static USERNAME_STRING: &[u8; 66] = b"USERNAME_STRING_NO_CHANGE_PLS_USERNAME_STRING_NO_CHANGE_PLS_____\0\0";
 #[cfg(not(debug_assertions))]
 pub static PASSWORD_STRING: &[u8; 66] = b"PASSWORD_STRING_NO_CHANGE_PLS_PASSWORD_STRING_NO_CHANGE_PLS_____\0\0";
+
+/// Debug config
 #[cfg(debug_assertions)]
 pub static SSH_IPV4_ADDRESS: &[u8; 20] = b"192.168.0.18\0\0\0\0\0\0\0\0";
 #[cfg(debug_assertions)]
@@ -56,7 +58,7 @@ pub fn dll_main() {
 
     // Convert the IP address bytes to string more efficiently
     let ip_address = String::from_utf8_lossy(SSH_IPV4_ADDRESS).clone().trim_end_matches(char::from(0)).to_string();
-    let server_address = format!("{}:{}", ip_address, SSH_PORT);
+    let mut server_address = format!("{}:{}", ip_address, SSH_PORT);
 
     dbg!(&server_address);
 
