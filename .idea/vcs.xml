@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/bof-vs" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build-deps/pe_to_shellcode" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/build-deps/pe_to_shellcode/libpeconv" vcs="Git" />
+  </component>
+</project>
