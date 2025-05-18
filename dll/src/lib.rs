@@ -7,7 +7,6 @@ mod pipe;
 mod windows;
 
 use std::io::Read;
-use crate::ffi::*;
 use crate::pipe::*;
 
 use std::os::raw::c_void;
@@ -18,7 +17,7 @@ use ssh2::Session;
 
 // IPv4 ADDRESS IS STOMPED IN BY .CNA
 #[cfg(not(debug_assertions))]
-pub static SSH_IPV4_ADDRESS: &[u8; 20] = b"255.255.255.255\0\0\0\0\0";
+pub static SSH_IPV4_ADDRESS: &[u8; 20] = b"999.999.999.999\0\0\0\0\0";
 #[cfg(not(debug_assertions))]
 pub static USERNAME_STRING: &[u8; 66] = b"USERNAME_STRING_NO_CHANGE_PLS_USERNAME_STRING_NO_CHANGE_PLS_____\0\0";
 #[cfg(not(debug_assertions))]
@@ -58,7 +57,7 @@ pub fn dll_main() {
 
     // Convert the IP address bytes to string more efficiently
     let ip_address = String::from_utf8_lossy(SSH_IPV4_ADDRESS).clone().trim_end_matches(char::from(0)).to_string();
-    let mut server_address = format!("{}:{}", ip_address, SSH_PORT);
+    let server_address = format!("{}:{}", ip_address, SSH_PORT);
 
     dbg!(&server_address);
 
@@ -68,23 +67,57 @@ pub fn dll_main() {
     sess.set_tcp_stream(tcp);
     sess.handshake().unwrap();
 
-    sess.userauth_password("kali", "kali").unwrap();
-    assert!(sess.authenticated());
+    // Get username and password from stomped in values
+    let username = String::from_utf8_lossy(USERNAME_STRING).clone().trim_end_matches(char::from(0)).to_string();
+    let password = String::from_utf8_lossy(PASSWORD_STRING).clone().trim_end_matches(char::from(0)).to_string();
 
-    let mut channel = sess.channel_session().unwrap();
-    channel.exec("ls").unwrap();
-    let mut s = String::new();
-    channel.read_to_string(&mut s).unwrap();
-    println!("{}", s);
-    // Write output to the pipe
-    // write_output("Hello from the Rust Reflective DLL via output!");
+    sess.userauth_password(&*username, &*password).unwrap();
+
+    if sess.authenticated() {
+        write_output(h_output_pipe, format!("Authenticated user {}.\n", username).as_str());
+    }
+
+    loop{
+
+        let mut channel = sess.channel_session().unwrap();
+
+        let user_input = match read_input(h_input_pipe) {
+            None => continue,
+            Some(s) => s,
+        };
+
+        // Create a null-terminated copy for Windows API calls
+        let display_string = format!("{}\0", user_input);
+
+        // Check if the user wants to exit
+        if user_input.starts_with("exit") {
+            write_output(h_output_pipe, format!("Closing session to {}", ip_address).as_str());
+            channel.close().unwrap();
+            break;
+        }
+
+        // Create a separate string for the command and remove null bytes
+        let command: String = user_input.trim().chars().filter(|&c| c != '\0').collect();
+        let res = match channel.exec(&command){
+            Ok(c) => c,
+            Err(e) => {
+                let msg = e.to_string();
+                write_output(h_output_pipe, format!("Error: {}.\n", msg).as_str());
+                continue;
+            }
+        };
+
+        let mut s = String::new();
+        channel.read_to_string(&mut s).unwrap();
+
+        write_output(h_output_pipe, &*s);
+    }
 
     // Close Handles
     unsafe{
         CloseHandle(h_input_pipe);
         CloseHandle(h_output_pipe);
     }
-
 }
 
 /// Retrieves the instruction pointer (IP) on the `x86_64` architecture.

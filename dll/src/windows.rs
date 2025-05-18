@@ -6,7 +6,11 @@ pub(crate) type LPVOID = *mut std::ffi::c_void;
 
 pub(crate) const GENERIC_WRITE:u32 =  0x40000000;
 pub(crate) const GENERIC_READ:u32 =  0x80000000;
+pub(crate) const PIPE_ACCESS_INBOUND: u32 = 0x00000001;
+pub(crate) const PIPE_ACCESS_OUTBOUND: u32 = 0x00000002;
 pub(crate) const PIPE_ACCESS_DUPLEX: u32 = 0x00000003;
+pub(crate) const PIPE_READMODE_MESSAGE: u32 = 0x00000002;
+pub(crate) const PIPE_TYPE_MESSAGE: u32 = 0x00000004;
 pub(crate) const OPEN_EXISTING: u32 = 0x00000003;
 pub(crate) const PIPE_TYPE_BYTE: u32 = 0x00000000;
 pub(crate) const INVALID_HANDLE_VALUE: HANDLE = -1isize as HANDLE;
@@ -76,6 +80,9 @@ unsafe extern "system" {
         lpBytesRead: *mut u32,
         lpTotalBytesAvail: *mut u32,
         lpBytesLeftThisMessage: *mut u32,
+    ) -> BOOL;
+    pub(crate) fn DisconnectNamedPipe(
+        hNamedPipe: HANDLE
     ) -> BOOL;
 }
 

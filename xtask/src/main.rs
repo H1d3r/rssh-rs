@@ -15,7 +15,7 @@ fn main() {
 
     let status = Command::new("build-deps/pe_to_shellcode/pe2shc/Release/pe2shc.exe")
         .args(&["dll_rs.dll"])
-        .current_dir("./target/release")
+        .current_dir("target/x86_64-pc-windows-msvc/release")
         .status()
         .expect("Failed to run pe2shc.exe");
     if !status.success() {
