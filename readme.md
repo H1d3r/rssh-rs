@@ -60,7 +60,7 @@ For use from Cobalt Strike (**without building from source**), these steps shoul
 
 
 ## Getting Reflective DLL Output to Beacon Console
-`rdll-rs.cna` contains a `ssh-read` function that is automatically called when `ssh-exec` is used. There's a possibility that this job will timeout before output from the SSH server is sent back. If this is the case, the command will be retreived from the named pipe on the next issued command from the Beacon console.
+`rdll-rs.cna` contains a `ssh-read` function that is automatically called when `ssh-exec` is used. There's a possibility that this job will timeout before output from the SSH server is sent back. If this is the case, the output will be retreived from the named pipe on the next issued command from the Beacon console.
 
 ## Using Other Reflective Loaders
 Some implementations of reflective loaders obfuscate the DLL. This can be helpful in some contexts but applying the obfuscation on the DLL before execution of the `.cna` results in a failure to stomp the appropriate pipe names, username, password, and target IP address into the DLL, breaking the functionality of this DLL. To mitigate the risk of this, it's recommended that a manual stomp step be applied before an alternative reflective loader is applied to the DLL. An example workflow that uses a PowerShell one-liner is below:
