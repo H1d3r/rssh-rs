@@ -91,4 +91,4 @@ I encourage you to try it sometime. However, this repsitory does not require tha
 ## Licensing
 
 - MIT or Apache 2.0
-- A copy of [bof-vs] is included in this repository for ease of rebuilding from source. That code is redistrubuted under Apache 2.0.
+- A copy of [bof-vs](https://github.com/Cobalt-Strike/bof-vs) is included in this repository for ease of rebuilding from source. That code is redistrubuted under Apache 2.0.
