@@ -38,7 +38,7 @@ cargo run --bin xtask --release
 ## Usage
 
 For use from Cobalt Strike (**without building from source**), these steps should be followed:
-1. `git clone`
+1. `git clone https://github.com/0xTriboulet/rssh-rs`
 2. From the Script Manager, load `rdll-rs.cna`
 3. Run `ssh-init <ssh server ip> <username> <password> <optional: pid>`
 4. Run commands with `ssh-exec <command>`
