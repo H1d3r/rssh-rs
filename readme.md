@@ -43,7 +43,7 @@ For use from Cobalt Strike (**without building from source**), these steps shoul
 3. Run `ssh-init <ssh server ip> <username> <password> <optional: pid>`
 4. Run commands with `ssh-exec <command>`
 
-
+## Building from Source
 1. `rssh-rs` (**dll_rs.shc.dll**) is intended to be built with [@hasherezade's](https://github.com/hasherezade) [pe_to_shellcode](https://github.com/hasherezade/pe_to_shellcode)
     - Resolve submodules with `git submodule update --init --recursive`
     - `cd .\build-deps\pe_to_shellcode\`
