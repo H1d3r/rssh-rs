@@ -20,21 +20,6 @@ A Rust DLL project that integrates [pe2shc](https://github.com/hasherezade/pe_to
 - `build-deps/pe_to_shellcode` - Post-build stomp reflective loader
 - Supporting Rust source files
 
-## Building
-
-To build the project, use Cargo:
-```bash
-cargo build
-```
-Or to build in release:
-```bash
-cargo build --release
-```
-Or to build a Reflective DLL:
-```bash
-cargo run --bin xtask --release
-```
-
 ## Usage
 
 For use from Cobalt Strike (**without building from source**), these steps should be followed:
@@ -44,6 +29,7 @@ For use from Cobalt Strike (**without building from source**), these steps shoul
 4. Run commands with `ssh-exec <command>`
 
 ## Building from Source
+
 1. `rssh-rs` (**dll_rs.shc.dll**) is intended to be built with [@hasherezade's](https://github.com/hasherezade) [pe_to_shellcode](https://github.com/hasherezade/pe_to_shellcode)
     - Resolve submodules with `git submodule update --init --recursive`
     - `cd .\build-deps\pe_to_shellcode\`
@@ -54,6 +40,22 @@ For use from Cobalt Strike (**without building from source**), these steps shoul
     - Use your Reflective DLL in `target/release/dll_rs.shc.dll` via `rdll-rs.cna`
     - **NOTE: If the build process above is too complicated/broken for your taste, simply placing the [`pe2shc.exe`](https://github.com/hasherezade/pe_to_shellcode/releases/download/v1.2/pe2shc.exe) executable in the proper folder structure (`build-deps/pe_to_shellcode/pe2shc/Release/pe2shc.exe`) will work.**
 2.  Build the BOF project included in the `bof-vs` directory with Visual Studio. Two pre-compiled versions of this BOF is included in this repository as `bof-vs/x64/Release/bof.x64.o.orig` and `bof-vs/x64/Release/bof.x64.o`. `bof.x64.o.orig` can be used to restore the BOF to its original condition without having to use Visual Studio.
+
+One the above is complete, you can build with Cargo:
+
+A debug build:
+```bash
+cargo build
+```
+Or to build in release:
+```bash
+cargo build --release
+```
+Or to build a Reflective DLL using pe2shc:
+```bash
+cargo run --bin xtask --release
+```
+
 3.  Load `rdll-rs.cna` from the Beacon console.
 4.  Use the `ssh-init` command with the appropriate commands to connect to the SSH server of your choosing.
 5.  For more comprehensive documentation regarding development and manipulation of source code, see [rdll-rs](https://github.com/0xTriboulet/rdll-rs).
