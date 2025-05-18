@@ -5,7 +5,7 @@ A Rust DLL project that integrates [pe2shc](https://github.com/hasherezade/pe_to
 ## Overview
 
 `rssh-rs` Is an ssh client that connects to the specified target IP address via username and password with the `ssh-init` command from a Beacon session. Commands can then be sent to the session with the `ssh-exec` command.
-![alt text](image.png)
+![alt text](image-2.png)
 
 ## Features
 
