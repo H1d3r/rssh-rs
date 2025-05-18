@@ -179,7 +179,8 @@ sub ssh-read {
     $description = "pipe read";
 
     if($ssh_inited < 0){
-        berror("You must init ssh first. Try: ssh-init <target ip> <username> <password> <optional: pid>")
+        berror($1, "You must init ssh first. Try: ssh-init <target ip> <username> <password> <optional: pid>")
+        return;
     }
 
     # Get current beacon info
@@ -214,7 +215,8 @@ alias ssh-exec {
     $data = $2;
     
     if($ssh_inited < 0){
-        berror("You must init ssh first. Try: ssh-init <target ip> <username> <password> <optional: pid>")
+        berror($bid, "You must init ssh first. Try: ssh-init <target ip> <username> <password> <optional: pid>")
+        return;
     }
 
     $args = bof_pack($bid, "z", $data);
