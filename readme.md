@@ -37,7 +37,12 @@ cargo run --bin xtask --release
 
 ## Usage
 
-For use from Cobalt Strike, these steps should be followed:
+For use from Cobalt Strike (**without building from source**), these steps should be followed:
+1. `git clone`
+2. From the Script Manager, load `rdll-rs.cna`
+3. Run `ssh-init <ssh server ip> <username> <password> <optional: pid>`
+4. Run commands with `ssh-exec <command>`
+
 
 1. `rssh-rs` (**dll_rs.shc.dll**) is intended to be built with [@hasherezade's](https://github.com/hasherezade) [pe_to_shellcode](https://github.com/hasherezade/pe_to_shellcode)
     - Resolve submodules with `git submodule update --init --recursive`
