@@ -10,8 +10,9 @@ A Rust DLL project that integrates [pe2shc](https://github.com/hasherezade/pe_to
 ## Features
 
 - `rdll-rs.cna` Which stomps in user arguments into the appropriate places for use by the DLL.
-- `ssh-init` the command that initializes the SSH session with the server and setups the named pipes that will be used for input/output from the DLL.
-- `ssh-exec` which can be used to pass commands to the SSH session via Beacon Object File (BOF).
+- `rssh-init` the command that initializes the SSH session with the server using credentials and sets up the named pipes that will be used for input/output from the DLL.
+- `rssh-key-init` the command that initializes the SSH session with the server using a private key and sets up the named pipes that will be used for input/output from the DLL.
+- `rssh-exec` which can be used to pass commands to the SSH session via Beacon Object File (BOF).
 
 ## Project Structure
 
@@ -49,29 +50,23 @@ cargo run --bin xtask --release
 ```
 
 3.  Load `rdll-rs.cna` from the Beacon console.
-4.  Use the `ssh-init` command with the appropriate commands to connect to the SSH server of your choosing.
+4.  Use the `rssh-init` command with the appropriate commands to connect to the SSH server of your choosing.
 5.  For more comprehensive documentation regarding development and manipulation of source code, see [rdll-rs](https://github.com/0xTriboulet/rdll-rs).
 
 
 ## Getting Reflective DLL Output to Beacon Console
-`rdll-rs.cna` contains a `ssh-read` function that is automatically called when `ssh-exec` is used. There's a possibility that this job will timeout before output from the SSH server is sent back. If this is the case, the output will be retreived from the named pipe on the next issued command from the Beacon console.
+`rdll-rs.cna` contains a `rssh-read` function that is automatically called when `rssh-exec` is used. There's a possibility that this job will timeout before output from the SSH server is sent back. If this is the case, the output will be retreived from the named pipe on the next issued command from the Beacon console.
 
 ## Using Other Reflective Loaders
-Some implementations of reflective loaders obfuscate the DLL. This can be helpful in some contexts but applying the obfuscation on the DLL before execution of the `.cna` results in a failure to stomp the appropriate pipe names, username, password, and target IP address into the DLL, breaking the functionality of this DLL. To mitigate the risk of this, it's recommended that a manual stomp step be applied before an alternative reflective loader is applied to the DLL. An example workflow that uses a PowerShell one-liner is below:
-- `cargo build --release`
-- `cd target/release`
-- ```$path = "dll_rs.dll"; $bytes = [System.IO.File]::ReadAllBytes($path); $search = [System.Text.Encoding]::ASCII.GetBytes("OUTPUT_PIPE_NAME_NO_CHANGE_PLS"); $replace = [System.Text.Encoding]::ASCII.GetBytes("macrohard_updates`0".PadRight($search.Length, "`0")); for ($i = 0; $i -le $bytes.Length - $search.Length; $i++) { $match = $true; for ($j = 0; $j -lt $search.Length; $j++) { if ($bytes[$i + $j] -ne $search[$j]) { $match = $false; break } } if ($match) { $replace.CopyTo($bytes, $i); break } }; [System.IO.File]::WriteAllBytes($path, $bytes)```
-   - **Note that `macrohard_updates` should match the pipe name in the `.cna` and has the same length limitation (28-bytes).**
-- `donut --input:dll_rs.dll -o dll_rs.shc.dll`
-- **Note that *ALL* `stomp_me` variables in the `.cna` must be manually handled this way**
+For proof-of-concept functionality, `rssh-rs` applies `pe2shc`'s reflective loader to `dll_rs.dll` -> `dll_rs.shc.x64.dll`. However, one of the really cool capabilities of `pe2shc` is that the output PE retains all functionality of the original. This means that you can apply your own "obfuscation"-enabled reflective loader on-top without any negative effects at run time.
 
 ## I don't want to learn Rust
 I encourage you to try it sometime. However, this repsitory does not require that you learn Rust in order to use the DLL. Prebuilt binaries are included in the appropriate directories in this repository.
 
 ## Technical Details
 
-- User arguments passed in to `ssh-init` are stomped into the DLL.The DLL then initializes two named pipes, one for input and one for output. It then authenticates to the specified SSH server using the credentials provided and waits for user commands.
-- `ssh-exec` fires a BOF that writes to the pipe that the DLL is listening on. When the DLL receives this input, it forwards the command to the SSH server.
+- User arguments passed in to `rssh-init` are stomped into the DLL.The DLL then initializes two named pipes, one for input and one for output. It then authenticates to the specified SSH server using the credentials provided and waits for user commands.
+- `rssh-exec` fires a BOF that writes to the pipe that the DLL is listening on. When the DLL receives this input, it forwards the command to the SSH server.
 - Supports the command-line ergonomics of in your [favorite C2 Framework](https://www.cobaltstrike.com/).
 
 ## Requirements

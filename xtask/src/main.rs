@@ -18,7 +18,7 @@ fn main() {
     // Apply reflective loader
     println!("[XTASK] Applying pe2shc loader...");
     let status = Command::new("pe2shc.exe")
-        .args(&["dll_rs.dll"])
+        .args(&["dll_rs.dll", "dll_rs.shc.x64.dll"])
         .current_dir("target/x86_64-pc-windows-msvc/release")
         .status()
         .expect("Failed to run pe2shc.exe");
@@ -29,7 +29,7 @@ fn main() {
     // Copy reflective dll
     println!("[XTASK] Copying reflective dll...");
     let status = Command::new("cp")
-        .args(&["target/x86_64-pc-windows-msvc/release/dll_rs.shc.dll", "bins/x64/dll_rs.shc.dll"])
+        .args(&["target/x86_64-pc-windows-msvc/release/dll_rs.shc.x64.dll", "bins/x64/dll_rs.shc.x64.dll"])
         .current_dir(".")
         .status()
         .expect("Failed to run pe2shc.exe");

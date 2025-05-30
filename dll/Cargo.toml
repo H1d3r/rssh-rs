@@ -12,4 +12,6 @@ path = "src/lib.rs"
 cc = "1.2.22"
 
 [dependencies]
-ssh2 = {version = "0.9.5"}
+ssh2 = {version = "0.9.5", features = ["openssl-on-win32"] }
+windows-sys = {version = "0.59.0", features = ["default", "Win32_System_Pipes", "Win32_System_IO", "Win32_Storage_FileSystem", "Win32_Security", "Win32_Storage_FileSystem"]}
+debug_print = "1.0.0"

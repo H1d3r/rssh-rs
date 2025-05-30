@@ -1,3 +1,0 @@
-[submodule "build-deps/pe_to_shellcode"]
-	path = build-deps/pe_to_shellcode
-	url = https://github.com/hasherezade/pe_to_shellcode
