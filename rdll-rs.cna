@@ -475,7 +475,7 @@ beacon_command_register(
 
 beacon_command_register(
 	"rssh-exit",
-	"(64-bit only) Uses a bof to write the exit command to a pipe that is read by a user implemented reflective DLL and sent to the ssh target. SSH session exits",
+	"(64-bit only) Uses a bof to write the exit command to a pipe that is read by a user implemented reflective DLL and sent to the ssh target. SSH session exits.",
 	"rssh-exit\nex:rssh-exit",
 	"rssh"
 );
