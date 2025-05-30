@@ -18,8 +18,8 @@ A Rust DLL project that integrates [pe2shc](https://github.com/hasherezade/pe_to
 
 - `dll/src/lib.rs` - Library entry point
 - `exe/src/main.rs` - Executable implementation
-- `build-deps/pe_to_shellcode` - Post-build stomp reflective loader
-- Supporting Rust source files
+- `bins/` - Pre-built binaries for use by the `.cna`
+- `out/` - Binaries with stomped-in values  (You want to use these for post-processing/obfuscation)
 
 ## Usage
 

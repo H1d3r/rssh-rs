@@ -1,10 +1,13 @@
 #![allow(unused_imports)]
-use dll_rs::dll_main;
 
+use std::ptr::null_mut;
+use dll_rs::{dll_main, dll_start, DllMain};
+use tokio::runtime::Runtime;
 /// Executable wrapper for functionality in dll_rs
-fn main() {
-    #[cfg(not(debug_assertions))]
-    println!("[!] RELEASE DEBUGGING EXECUTABLE [!]");
-
-    dll_main();
+#[tokio::main]
+async fn main() {
+    // Initialize resources, etc.
+    unsafe { dll_start() };
 }
+
+

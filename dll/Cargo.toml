@@ -12,6 +12,9 @@ path = "src/lib.rs"
 cc = "1.2.22"
 
 [dependencies]
-ssh2 = {version = "0.9.5", features = ["openssl-on-win32"] }
-windows-sys = {version = "0.59.0", features = ["default", "Win32_System_Pipes", "Win32_System_IO", "Win32_Storage_FileSystem", "Win32_Security", "Win32_Storage_FileSystem"]}
+russh = "0.52.1"
+russh-keys = "0.49.2"
+windows-sys = {version = "0.59.0", features = ["default", "Win32_System_Pipes", "Win32_System_IO", "Win32_Storage_FileSystem", "Win32_Security", "Win32_Storage_FileSystem", "Win32_System_Threading"]}
 debug_print = "1.0.0"
+pollster = "0.3"
+tokio = "1.45.1"
