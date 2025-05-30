@@ -10,8 +10,9 @@ pub const MAX_PIPE_BUFFER_SIZE: usize = 4096;
 pub static OUTPUT_PIPE_NAME: &[u8; 42] = b"\\\\.\\pipe\\OUTPUT_PIPE_NAME_NO_CHANGE_PLS\0\0\0";
 pub static INPUT_PIPE_NAME: &[u8; 42] = b"\\\\.\\pipe\\INPUT_PIPE_NAME_NO_CHANGE_PLS\0\0\0\0";
 
+#[cfg(not(debug_assertions))]
 pub(crate) fn read_input(h_input_pipe: HANDLE) -> Option<String> {
-    let mut dyn_buffer = Box::new(vec![0u8; MAX_PIPE_BUFFER_SIZE as usize]);
+    let dyn_buffer = Box::new(vec![0u8; MAX_PIPE_BUFFER_SIZE as usize]);
     let mut bytes_read: u32 = 0;
 
     // Check if client is still connected
@@ -58,7 +59,7 @@ pub(crate) fn read_input(h_input_pipe: HANDLE) -> Option<String> {
     None
 }
 
-
+#[cfg(not(debug_assertions))]
 pub(crate) fn initialize_input_pipe() -> Option<HANDLE> {
     let pipe_name = String::from_utf8_lossy(&*INPUT_PIPE_NAME);
 
@@ -94,6 +95,17 @@ pub(crate) fn initialize_input_pipe() -> Option<HANDLE> {
 
 
     return Some(h_pipe);
+}
+
+#[cfg(debug_assertions)]
+pub(crate) fn read_input(_h_input_pipe: HANDLE) -> Option<String> {
+    let mut input = String::new();
+    std::io::stdin().read_line(&mut input).expect("[DEBUG] Failed to get input!");
+    Some(input)
+}
+#[cfg(debug_assertions)]
+pub(crate) fn initialize_input_pipe() -> Option<HANDLE> {
+    return Some(0 as HANDLE);
 }
 
 pub(crate) fn initialize_output_pipe() -> Option<HANDLE> {

