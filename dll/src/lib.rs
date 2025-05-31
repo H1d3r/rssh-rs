@@ -19,7 +19,7 @@ use russh::*;
 use russh::client::{Config, Handle};
 
 use windows_sys::Win32::Foundation::CloseHandle;
-use windows_sys::Win32::System::Threading::{CreateThread, WaitForSingleObject, INFINITE, LPTHREAD_START_ROUTINE};
+use windows_sys::Win32::System::Threading::{CreateThread, WaitForSingleObject, INFINITE};
 // Keep this for pipe handle cleanup
 
 // IPv4 ADDRESS IS STOMPED IN BY .CNA
