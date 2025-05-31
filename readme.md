@@ -34,20 +34,20 @@ For use from Cobalt Strike (**without building from source**), these steps shoul
 
 1. `rssh-rs` (**dll_rs.shc.dll**) is intended to be built with [@hasherezade's](https://github.com/hasherezade) [pe_to_shellcode](https://github.com/hasherezade/pe_to_shellcode). Be sure to download the `pe2shc.exe` binary and add it to your system path before building from source.
 
-One the above is complete, you can build with Cargo:
+2. Once the above is complete, you can build with Cargo:
 
-A debug build:
-```bash
-cargo build
-```
-Or to build in release:
-```bash
-cargo build --release
-```
-Or to build a Reflective DLL using pe2shc:
-```bash
-cargo run --bin xtask --release
-```
+    Debug build:
+    ```bash
+    cargo build
+    ```
+    Or to build in release:
+    ```bash
+    cargo build --release
+    ```
+    Or to build a Reflective DLL using pe2shc:
+    ```bash
+    cargo run --bin xtask --release
+    ```
 
 3.  Load `rdll-rs.cna` from the Beacon console.
 4.  Use the `rssh-init` or `rssh-key-init` commands with the appropriate arguments to connect to the SSH server of your choosing.
