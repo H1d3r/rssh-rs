@@ -11,5 +11,15 @@ path = "src/lib.rs"
 [build-dependencies]
 cc = "1.2.22"
 
+[profile.release]
+strip = "symbols"
+panic = "abort"
+opt-level = "z"
+codegen-units = 1
+lto = true
+
 [dependencies]
-ssh2 = {version = "0.9.5"}
+russh = "0.52.1"
+windows-sys = {version = "0.59.0", features = ["default", "Win32_System_Pipes", "Win32_System_IO", "Win32_Storage_FileSystem", "Win32_Security", "Win32_Storage_FileSystem", "Win32_System_Threading"]}
+debug_print = "1.0.0"
+tokio = "1.45.1"

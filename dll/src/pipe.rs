@@ -1,8 +1,16 @@
 #![allow(unused_imports)]
-use crate::windows::*;
 use std::ffi::CString;
 use std::ptr;
 use std::ptr::null_mut;
+use debug_print::debug_println;
+use windows_sys::Win32::Foundation::{CloseHandle, ERROR_PIPE_CONNECTED, GetLastError, INVALID_HANDLE_VALUE, HANDLE};
+use windows_sys::Win32::Storage::FileSystem::{
+    FlushFileBuffers, PIPE_ACCESS_DUPLEX, PIPE_ACCESS_INBOUND, ReadFile, WriteFile,
+};
+use windows_sys::Win32::System::Pipes::{
+    ConnectNamedPipe, CreateNamedPipeA, DisconnectNamedPipe, PIPE_READMODE_MESSAGE, PIPE_TYPE_BYTE,
+    PIPE_TYPE_MESSAGE, PeekNamedPipe,
+};
 
 pub const MAX_PIPE_BUFFER_SIZE: usize = 4096;
 
@@ -10,7 +18,8 @@ pub const MAX_PIPE_BUFFER_SIZE: usize = 4096;
 pub static OUTPUT_PIPE_NAME: &[u8; 42] = b"\\\\.\\pipe\\OUTPUT_PIPE_NAME_NO_CHANGE_PLS\0\0\0";
 pub static INPUT_PIPE_NAME: &[u8; 42] = b"\\\\.\\pipe\\INPUT_PIPE_NAME_NO_CHANGE_PLS\0\0\0\0";
 
-pub(crate) fn read_input(h_input_pipe: HANDLE) -> Option<String> {
+#[cfg(not(debug_assertions))]
+pub fn read_input(h_input_pipe: HANDLE) -> Option<String> {
     let mut dyn_buffer = Box::new(vec![0u8; MAX_PIPE_BUFFER_SIZE as usize]);
     let mut bytes_read: u32 = 0;
 
@@ -23,7 +32,7 @@ pub(crate) fn read_input(h_input_pipe: HANDLE) -> Option<String> {
             0,
             null_mut(),
             &mut bytes_available,
-            null_mut()
+            null_mut(),
         )
     };
 
@@ -44,7 +53,7 @@ pub(crate) fn read_input(h_input_pipe: HANDLE) -> Option<String> {
                 dyn_buffer.as_ptr() as *mut u8,
                 MAX_PIPE_BUFFER_SIZE as u32,
                 &mut bytes_read,
-                std::ptr::null_mut()
+                std::ptr::null_mut(),
             )
         };
 
@@ -58,10 +67,10 @@ pub(crate) fn read_input(h_input_pipe: HANDLE) -> Option<String> {
     None
 }
 
-
-pub(crate) fn initialize_input_pipe() -> Option<HANDLE> {
+#[cfg(not(debug_assertions))]
+pub fn initialize_input_pipe() -> Option<HANDLE> {
     let pipe_name = String::from_utf8_lossy(&*INPUT_PIPE_NAME);
-
+    debug_println!("Pipe name: {}", pipe_name);
     let h_pipe = unsafe {
         CreateNamedPipeA(
             pipe_name.as_ptr() as *const u8,
@@ -77,7 +86,7 @@ pub(crate) fn initialize_input_pipe() -> Option<HANDLE> {
 
     if h_pipe == INVALID_HANDLE_VALUE {
         let err = unsafe { GetLastError() };
-        dbg!("CreateNamedPipe failed: {}", err);
+        debug_println!("CreateNamedPipe failed: {}", err);
         return None;
     }
 
@@ -86,19 +95,29 @@ pub(crate) fn initialize_input_pipe() -> Option<HANDLE> {
     if connected == 0 {
         let err = unsafe { GetLastError() };
         if err != ERROR_PIPE_CONNECTED {
-            dbg!("ConnectNamedPipe failed: {}", err);
+            debug_println!("ConnectNamedPipe failed: {}", err);
             unsafe { CloseHandle(h_pipe) };
             return None;
         }
     }
 
-
     return Some(h_pipe);
 }
 
-pub(crate) fn initialize_output_pipe() -> Option<HANDLE> {
-    let pipe_name = String::from_utf8_lossy(&*OUTPUT_PIPE_NAME);
+#[cfg(debug_assertions)]
+pub(crate) fn read_input(_h_input_pipe: HANDLE) -> Option<String> {
+    let mut input = String::new();
+    std::io::stdin().read_line(&mut input).expect("[DEBUG] Failed to get input!");
+    Some(input)
+}
+#[cfg(debug_assertions)]
+pub fn initialize_input_pipe() -> Option<HANDLE> {
+    return Some(0 as HANDLE);
+}
 
+pub fn initialize_output_pipe() -> Option<HANDLE> {
+    let pipe_name = String::from_utf8_lossy(&*OUTPUT_PIPE_NAME);
+    debug_println!("Pipe name: {}", pipe_name);
     let h_pipe = unsafe {
         CreateNamedPipeA(
             pipe_name.as_ptr() as *const u8,
@@ -114,7 +133,7 @@ pub(crate) fn initialize_output_pipe() -> Option<HANDLE> {
 
     if h_pipe == INVALID_HANDLE_VALUE {
         let err = unsafe { GetLastError() };
-        dbg!("CreateNamedPipe failed: {}", err);
+        debug_println!("CreateNamedPipe failed: {}", err);
         return None;
     }
 
@@ -122,7 +141,7 @@ pub(crate) fn initialize_output_pipe() -> Option<HANDLE> {
 }
 
 #[cfg(not(debug_assertions))]
-pub(crate) fn write_output(h_output_pipe: HANDLE, data: &str) {
+pub fn write_output(h_output_pipe: HANDLE, data: &str) {
     let message = data.as_bytes();
     let mut bytes_written: u32 = 0;
 
@@ -130,13 +149,13 @@ pub(crate) fn write_output(h_output_pipe: HANDLE, data: &str) {
     if connected == 0 {
         let err = unsafe { GetLastError() };
         if err != ERROR_PIPE_CONNECTED {
-            dbg!("ConnectNamedPipe failed: {}", err);
+            debug_println!("ConnectNamedPipe failed: {}", err);
             unsafe { CloseHandle(h_output_pipe) };
             return;
         }
     }
 
-    dbg!("[+] Beacon connected! Sending message...");
+    debug_println!("[+] Beacon connected! Sending message...");
 
     let success = unsafe {
         WriteFile(
@@ -150,7 +169,7 @@ pub(crate) fn write_output(h_output_pipe: HANDLE, data: &str) {
 
     if success == 0 {
         let err = unsafe { GetLastError() };
-        dbg!("WriteFile failed: {}", err);
+        debug_println!("WriteFile failed: {}", err);
         unsafe { CloseHandle(h_output_pipe) };
         return;
     }
@@ -162,6 +181,6 @@ pub(crate) fn write_output(h_output_pipe: HANDLE, data: &str) {
 
 /// Debug implementation of write_output.
 #[cfg(debug_assertions)]
-pub(crate) fn write_output(_h_output_pipe: HANDLE, data: &str) {
+pub fn write_output(_h_output_pipe: HANDLE, data: &str) {
     println!("{}", data);
 }

