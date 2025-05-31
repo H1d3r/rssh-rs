@@ -5,7 +5,7 @@ A Rust DLL project that integrates [pe2shc](https://github.com/hasherezade/pe_to
 ## Overview
 
 `rssh-rs` Is an ssh client that connects to the specified target IP address via username and password with the `ssh-init` command from a Beacon session. Commands can then be sent to the session with the `ssh-exec` command.
-![alt text](image-2.png)
+![img.png](img.png)
 
 ## Features
 
@@ -61,7 +61,7 @@ cargo run --bin xtask --release
 For proof-of-concept functionality, `rssh-rs` applies `pe2shc`'s reflective loader to `dll_rs.dll` -> `dll_rs.shc.x64.dll`. However, one of the really cool capabilities of `pe2shc` is that the output PE retains all functionality of the original. This means that you can apply your own "obfuscation"-enabled reflective loader on-top without any negative effects at run time.
 
 ## I don't want to learn Rust
-I encourage you to try it sometime. However, this repsitory does not require that you learn Rust in order to use the DLL. Prebuilt binaries are included in the appropriate directories in this repository.
+I encourage you to try it sometime. However, this repsitory does not require that you learn Rust to use the DLL. Prebuilt binaries are included in the appropriate directories in this repository.
 
 ## Technical Details
 

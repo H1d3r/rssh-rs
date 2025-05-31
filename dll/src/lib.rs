@@ -13,13 +13,11 @@ use std::ptr::null_mut;
 use windows::*;
 
 use std::sync::Arc;
-use std::thread;
 use std::time::Duration;
-use tokio::runtime::Runtime;
 use russh::keys::*;
 use russh::*;
 use russh::client::{Config, Handle};
-use tokio::main;
+
 use windows_sys::Win32::Foundation::CloseHandle;
 use windows_sys::Win32::System::Threading::{CreateThread, WaitForSingleObject, INFINITE, LPTHREAD_START_ROUTINE};
 // Keep this for pipe handle cleanup
