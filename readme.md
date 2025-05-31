@@ -12,9 +12,10 @@ A Rust DLL project that integrates [pe2shc](https://github.com/hasherezade/pe_to
 - `rdll-rs.cna` Which stomps in user arguments into the appropriate places for use by the DLL.
 - `rssh-init` the command that initializes the SSH session with the server using credentials and sets up the named pipes that will be used for input/output from the DLL.
 - `rssh-key-init` the command that initializes the SSH session with the server using a private key and sets up the named pipes that will be used for input/output from the DLL.
+- `rssh-generate-client` command that can be used to create the binary with the appropriate options set in the `.cna`, without starting up the client.
 - `rssh-exec` which can be used to pass commands to the SSH session via Beacon Object File (BOF).
 - `rssh-exit` which can be used to exit the SSH session cleanly.
-- 
+
 ## Project Structure
 
 - `dll/src/lib.rs` - Library entry point
