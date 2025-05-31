@@ -49,13 +49,13 @@ For use from Cobalt Strike (**without building from source**), these steps shoul
     cargo run --bin xtask --release
     ```
 
-3.  Load `rdll-rs.cna` from the Beacon console.
+3.  Load `rssh-rs.cna` from the Beacon console.
 4.  Use the `rssh-init` or `rssh-key-init` commands with the appropriate arguments to connect to the SSH server of your choosing.
 5.  For more comprehensive documentation regarding the development and manipulation of source code, see [rdll-rs](https://github.com/0xTriboulet/rdll-rs).
 
 
 ## Getting Reflective DLL Output to Beacon Console
-`rdll-rs.cna` contains a `rssh-read` function that is automatically called when `rssh-exec` is used. There's a possibility that this job will timeout before output from the SSH server is sent back. If this is the case, the output will be retreived from the named pipe on the next issued command from the Beacon console.
+`rssh-rs.cna` contains a `rssh-read` function that is automatically called when `rssh-exec` is used. There's a possibility that this job will timeout before output from the SSH server is sent back. If this is the case, the output will be retreived from the named pipe on the next issued command from the Beacon console.
 
 ## Using Other Reflective Loaders
 For proof-of-concept functionality, `rssh-rs` applies `pe2shc`'s reflective loader to `dll_rs.dll` -> `dll_rs.shc.x64.dll`. However, one of the really cool capabilities of `pe2shc` is that the output PE retains all functionality of the original. This means that you can apply your own "obfuscation"-enabled reflective loader on-top without any negative effects at run time.
